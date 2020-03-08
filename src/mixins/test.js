@@ -21,9 +21,9 @@ export default class testMixin extends wepy.mixin {
                         isImage: true
                     }
                 ],
-                car_name: "雅阁",
-                price: "16万",
-                vip_price: "15.8万",
+                car_name: "丰田 凯美瑞 2018款 2.0G 豪华版",
+                price: 16,
+                vip_price: 15.8,
                 phone_num: "18000000000",
                 tags: [
                     {

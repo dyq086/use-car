@@ -1,97 +1,96 @@
+<!--
+ * @Description: 
+ * @Version: 1.0
+ * @Autor: yongqing
+ * @Date: 2020-01-15 14:53:49
+ * @LastEditors: yongqing
+ * @LastEditTime: 2020-03-08 21:17:32
+ -->
 <template>
     <view class="home-container">
-        <view class="header-title">{{LANG.explore}}</view>
-        <view class="export-block">
-            <navigator url="/pages/instructor/index" open-type="switchTab">
-                <image src="../../assets/images/icon_private.png" class="export-image" />
-            </navigator>
-            <navigator url="/pages/group/index" open-type="switchTab">
-                <image src="../../assets/images/icon_group.png" class="export-image" />
-            </navigator>
-            <navigator url="/pages/events/index" open-type="switchTab">
-                <image src="../../assets/images/icon_event.png" class="export-image" />
-            </navigator>
-        </view>
-        <view class="header-title">{{LANG.upcoming}}</view>
-        <view class="upcomin-block">
-            <ScheduleList :uctype.sync="uctype" :ucinfo.sync="ucinfo" :LANG.sync="LANG" />
-        </view>
-        <block wx:if="{{venueList.length>0}}">
-            <view class="header-title">{{LANG.location}}</view>
-            <view class="popular-block">
-                <PopularList :list.sync="venueList" />
+        <view class="home-content-block">
+            <view class="home-content-block-item" wx:for="{{carList}}" wx:key="index">
+                <image src="{{item.banner_img[0].url}}" mode="aspectFill" class="home-content-block-item__img" />
+                <view class="home-content-block-item__info">
+                    <view class="car-name">
+                        {{ item.car_name }}
+                    </view>
+                    <view class="car-mileage">
+                        {{ item.mileage }}
+                    </view>
+                    <view class="car-price">
+                        <text class="price">{{ item.price }}万</text>
+                        <text class="shoufu">首付 {{item.down}} 万</text>
+                    </view>
+                </view>
             </view>
-        </block>
+        </view>
     </view>
 </template>
 <script>
-import wepy from "wepy";
-import ScheduleList from './components/ScheduleList'
-import PopularList from './components/PopularList'
-import interfaces from '@/interfaces/index'
-import check_info from '@/mixins/check_info'
-import Lang from '@/mixins/lang'
+import wepy from "wepy"
 export default class Home extends wepy.page {
     config = {
-        navigationBarTitleText: "",
-    };
+        navigationBarTitleText: "汽车列表"
+    }
     data = {
-        venueList: [],
-        uctype: 0,
-        ucinfo: {},
-    };
-    components = {
-        ScheduleList,
-        PopularList
+        carList: []
     }
-    mixins = [check_info,Lang]
-    async onShow() {
-        await this._getHomeVenues();
-        await this._getUpcoming();
-        this.validateOptimize();
+    onLoad() {
+        this.getCarList()
     }
-    async _getHomeVenues() {
-        let res = await interfaces.getHomeVenues();
-        if (res.success) {
-            let { venues } = res.data;
-            this.venueList = venues;
-            this.$apply();
-        }
+    getCarList() {
+        this.$parent.db
+            .collection("cars")
+            .where({
+                is_deleted: false
+            })
+            .get()
+            .then(res => {
+                this.carList = res.data
+                this.carList.forEach((item, index) => {
+                    item["down"] = parseFloat(item.price * 0.1).toFixed(2)
+                })
+                this.$apply()
+            })
     }
-    async _getUpcoming() {
-        let res = await interfaces.getUpcoming();
-        if (res.success) {
-            let { books, type } = res.data;
-            if (books.length > 0) {
-                this.ucinfo = books[0]
-            }
-            this.uctype = type;
-            this.$apply();
-        }
-    }
-
-
-
 }
 </script>
 <style lang="less">
-@import '../../style/mixins';
+@import "../../style/mixins";
 
 .home-container {
-    .header-title {
-        font-size: 52rpx;
-        color: #333;
-        padding: 20rpx 40rpx;
-    }
-
-    .export-block {
-        display: flex;
-        justify-content: space-between;
-        padding: 20rpx 50rpx;
-
-        .export-image {
-            width: 188rpx;
-            height: 158rpx;
+    .home-content-block {
+        padding: 20rpx;
+        &-item {
+            display: flex;
+            padding: 20rpx 0;
+            &__img {
+                width: 280rpx;
+                height: 180rpx;
+            }
+            &__info {
+                margin-left: 20rpx;
+                .car-name {
+                    font-size: 32rpx;
+                    color: #222;
+                }
+                .car-mileage {
+                    font-size: 28rpx;
+                    color: #999;
+                }
+                .car-price {
+                    color: #f40;
+                    font-size: 28rpx;
+                    .price {
+                        font-size: 32rpx;
+                        padding-right: 10rpx;
+                    }
+                }
+            }
+            &:not(:last-child) {
+                border-bottom: 1rpx solid #efefef;
+            }
         }
     }
 }
