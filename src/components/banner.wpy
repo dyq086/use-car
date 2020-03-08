@@ -1,0 +1,39 @@
+<template>
+    <block>
+        <swiper class="swiper-wrap" indicator-dots="{{indicatorDots}}" autoplay="{{autoplay}}" interval="{{interval}}" duration="{{duration}}" style="height:{{height}}rpx" indicator-color="rgba(0,0,0,0.3)" indicator-active-color="#ccc">
+            <block wx:for="{{imgUrls}}" wx:key="index">
+                <swiper-item>
+                    <image src="{{item}}" class="slide-image" style="height:{{height}}rpx"  />
+                </swiper-item>
+            </block>
+        </swiper>
+    </block>
+</template>
+<script>
+import wepy from 'wepy'
+export default class Banner extends wepy.component {
+    props = {
+        imgUrls: {
+            default: Array,
+            type: []
+        },
+        height:{
+        	default:450
+        }
+    }
+    data = {
+        indicatorDots: true,
+        autoplay: true,
+        interval: 5000,
+        duration: 1000
+    }
+    methods = {}
+}
+</script>
+<style lang="less">
+.swiper-wrap{
+	.slide-image{
+		width: 100%;
+	}
+}
+</style>

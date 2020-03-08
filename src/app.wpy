@@ -1,0 +1,300 @@
+<style lang="less">
+@import "./style/icon";
+@import "./components/vant/common/index.wxss";
+
+.container {
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+page {
+    height: 100%;
+}
+
+.app-container {
+    background: #fafafa;
+    min-height: 100%;
+}
+
+.container--without-border:before {
+    display: none;
+}
+
+.van-field__body--textarea {
+    textarea {
+        height: 180px !important;
+    }
+}
+
+.btn-footer {
+    margin: 20rpx 40rpx;
+}
+
+.van-tag {
+    display: block;
+}
+
+.van-cell {
+    padding: 30rpx !important;
+}
+
+.van-cell__title {
+    color: #666;
+    font-size: 32rpx !important;
+    flex: 0.5 !important;
+}
+
+.van-cell__value {
+    color: #000 !important;
+    font-size: 32rpx !important;
+}
+</style>
+<script>
+import wepy from "wepy"
+import interfaces from "./interfaces"
+import "wepy-async-function"
+export default class extends wepy.app {
+    config = {
+        pages: ["pages/admin/index", "pages/home/index"],
+        window: {
+            navigationBarBackgroundColor: "#fff",
+            navigationBarTitleText: "WeChat",
+            navigationBarTextStyle: "black",
+            backgroundTextStyle: "dark",
+            backgroundColor: "#f9f9f9",
+            enablePullDownRefresh: false
+        },
+        // tabBar: {
+        //     color: '#8e8e8e',
+        //     selectedColor: '#000000',
+        //     backgroundColor: '#FFFFFF',
+        //     borderStyle: 'black',
+        //     list: [{
+        //             pagePath: 'pages/home/index',
+        //             text: 'HOME',
+        //             iconPath: 'icons/tabbar_icon/home.png',
+        //             selectedIconPath: 'icons/tabbar_icon_selected/home.png'
+        //         },
+        //         {
+        //             pagePath: 'pages/events/index',
+        //             text: 'EVENTS',
+        //             iconPath: 'icons/tabbar_icon/events.png',
+        //             selectedIconPath: 'icons/tabbar_icon_selected/events.png'
+        //         },
+        //         {
+        //             pagePath: 'pages/group/index',
+        //             text: 'CLASSES',
+        //             iconPath: 'icons/tabbar_icon/group.png',
+        //             selectedIconPath: 'icons/tabbar_icon_selected/group.png'
+        //         },
+        //         {
+        //             pagePath: 'pages/instructor/index',
+        //             text: 'APPTS',
+        //             iconPath: 'icons/tabbar_icon/instructor.png',
+        //             selectedIconPath: 'icons/tabbar_icon_selected/instructor.png'
+        //         },
+        //         {
+        //             pagePath: 'pages/my/index',
+        //             text: 'MY',
+        //             iconPath: 'icons/tabbar_icon/my.png',
+        //             selectedIconPath: 'icons/tabbar_icon_selected/my.png'
+        //         }
+        //     ]
+        // },
+        usingComponents: {
+            "van-field": "./components/vant/field/index",
+            "van-cell": "./components/vant/cell/index",
+            "van-popup": "./components/vant/popup/index",
+            "van-picker": "./components/vant/picker/index",
+            "van-row": "./components/vant/row/index",
+            "van-col": "./components/vant/col/index",
+            "van-tag": "./components/vant/tag/index",
+            "van-button": "./components/vant/button/index",
+            "van-icon": "./components/vant/icon/index",
+            "van-panel": "./components/vant/panel/index",
+            "van-search": "./components/vant/search/index",
+            "van-tab": "./components/vant/tab/index",
+            "van-tabs": "./components/vant/tabs/index",
+            "van-dialog": "./components/vant/dialog/index",
+            "van-swipe-cell": "./components/vant/swipe-cell/index",
+            "van-radio": "./components/vant/radio/index",
+            "van-radio-group": "./components/vant/radio-group/index",
+            "van-checkbox": "./components/vant/checkbox/index",
+            "van-checkbox-group": "./components/vant/checkbox-group/index",
+            "van-row": "./components/vant/row/index",
+            "van-col": "./components/vant/col/index",
+            "van-uploader": "./components/vant/uploader/index",
+            "van-goods-action": "./components/vant//goods-action/index",
+            "van-goods-action-icon": "./components/vant//goods-action-icon/index",
+            "van-goods-action-button": "./components/vant//goods-action-button/index"
+        }
+    }
+
+    globalData = {
+        userInfo: null,
+        systemInfo: null,
+        redirectUrl: null,
+        db: ""
+    }
+    onLoad() {}
+    async onLaunch(options) {
+        wx.cloud.init({
+            traceUser: true
+        })
+        const db = wx.cloud.database()
+        this.db = db
+    }
+
+    constructor() {
+        super()
+        this.use("promisify")
+        this.use("requestfix")
+        this.intercept("request", {
+            // 发出请求时的回调函数
+            config(p) {
+                // let { auth, showLoading } = p.meta;
+                // //是否显示loadding
+                // if (showLoading) {
+                //     wepy.showLoading({
+                //         mask: true,
+                //         title: 'Loading',
+                //     })
+                // }
+                // //是否需要验证接口
+                // if (auth) {
+                //     let token = wepy.getStorageSync('token');
+                //     try {
+                //         p.header['Authorization'] = 'Bearer ' + token;
+
+                //     } catch (err) {
+
+                //     }
+                // }
+                return p
+            },
+
+            // 请求成功后的回调函数
+            async success(p) {
+                // if (p.statusCode === 401) {
+                //     let language = wepy.getStorageSync("language") || wepy.getSystemInfoSync().language;
+                //     let modalObject;
+                //     if (language == "zh" || language == "zh_CN") {
+                //         modalObject = {
+                //             content: '系统检测到您未登录,是否登录?'
+                //         }
+                //     } else {
+                //         modalObject = {
+                //             confirmText: 'Yes',
+                //             cancelText: 'No',
+                //             content: 'You are not logged in, are you allowed to log in?'
+                //         }
+                //     }
+                //     let res = await wepy.showModal(modalObject)
+                //     if (res.confirm) {
+                //         let openid = wx.getStorageSync('openid');
+
+                //         if (!openid) { //没有openid 跳转授权
+                //             wepy.navigateTo({
+                //                 url: '/pages/user/authorize'
+                //             });
+                //             return false;
+                //         } else { //有openid 跳转登录绑定
+                //             wepy.navigateTo({
+                //                 url: '/pages/user/login'
+                //             });
+                //         }
+                //     }
+                //     return false
+                // }
+                // // 可以在这里对收到的响应数据对象进行加工处理
+                // if (!p.data.success) {
+                //     setTimeout(() => {
+                //         wepy.showToast({
+                //             title: p.data.msg,
+                //             icon: 'none',
+                //             duration: 2500
+                //         })
+                //     }, 500)
+                // }
+
+                // 必须返回响应数据对象，否则后续无法对响应数据进行处理
+                return p
+            },
+
+            //请求失败后的回调函数
+            fail(p) {
+                wepy.showToast({
+                    title: "网络异常",
+                    icon: "none",
+                    duration: 1000
+                })
+                wepy.hideLoading()
+                // 必须返回响应数据对象，否则后续无法对响应数据进行处理
+                return p
+            },
+
+            // 请求完成时的回调函数(请求成功或失败都会被执行)
+            complete(p) {
+                wepy.hideLoading()
+            }
+        })
+    }
+
+    async getSystemInfo() {
+        if (!this.globalData.systemInfo) {
+            this.globalData.systemInfo = await wepy.getSystemInfo()
+        }
+        return this.globalData.systemInfo
+    }
+    async showError(error) {
+        return await wepy.showModal({
+            title: "错误",
+            content: error.toString(),
+            showCancel: false,
+            confirmColor: "#F44"
+        })
+    }
+    async getUserInfo() {
+        if (!this.globalData.userInfo) {
+            let res = await wepy.getUserInfo()
+            this.globalData.userInfo = res.userInfo
+        }
+        return this.globalData.userInfo
+    }
+
+    async authorize() {
+        try {
+            return await this.getUserInfo()
+        } catch (e) {
+            let modalRes = await wepy.showModal({
+                confirmText: "Yes",
+                cancelText: "No",
+                title: "是否要打开设置页面重新授权",
+                content: "需要获取您的公开信息（昵称、头像等），请到小程序设置中打开用户信息授权",
+                confirmText: "去设置",
+                confirmColor: "#F44"
+            })
+            if (!modalRes.confirm) {
+                this.showError("授权失败，您可能有部分功能无法使用")
+                return false
+            }
+            let setRes = await wepy.openSetting()
+            if (!setRes.authSetting["scope.userInfo"]) {
+                this.showError("授权失败，您可能有部分功能无法使用")
+                return false
+            }
+            await interfaces.login()
+            return true
+        }
+    }
+
+    guid() {
+        function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1)
+        }
+        return s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4()
+    }
+}
+</script>

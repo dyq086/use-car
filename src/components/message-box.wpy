@@ -1,0 +1,86 @@
+<template>
+    <view>
+        <view class="popup-center {{show?'popup-show':''}}">
+            <slot></slot>
+        </view>
+        <view class="mask" wx:if="{{show}}" @tap.stop="close"></view>
+    </view>
+</template>
+<script>
+import wepy from 'wepy'
+
+export default class tabBar extends wepy.component {
+    props = {
+        show: Boolean
+    }
+    data = {
+       
+        id: ''
+
+    }
+    methods = {
+        close() {
+            this.show = false;
+            this.$emit("closeDlalog", false)
+        },
+        show(){
+             this.show = true;
+        }
+    }
+    watch = {
+        
+    }
+
+}
+</script>
+<style lang="less">
+.mask {
+    z-index: 999998;
+    background-color: rgba(0, 0, 0, 0.7);
+    pointer-events: auto;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    top: 0;
+    display: flex;
+    align-items: center;
+    transition: opacity .2s ease-in;
+}
+
+.popup-center {
+    z-index: 999999;
+    position: fixed;
+    top: 45%;
+    left: 50%;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(.6);
+    transform-origin: 50% 50%;
+    transition: transform .4s;
+    border-radius: 2px;
+    pointer-events: none;
+}
+
+
+
+.content-text {
+    margin-bottom: 1rem;
+}
+
+.popup-show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: auto;
+}
+
+.button {
+    width: 6rem;
+    margin: 0 auto;
+    background: #e60012;
+    color: #fff;
+    line-height: 1.92rem;
+    font-size: 0.875rem;
+    border-radius: .2rem;
+    text-align: center;
+}
+</style>

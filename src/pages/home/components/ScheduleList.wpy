@@ -1,0 +1,164 @@
+<template>
+    <view class="my-schedule-list-item-block">
+        <!--私教-->
+        <block wx:if="{{uctype===2}}">
+            <view class="my-schedule-list-item flex-tc">
+                <view class="project-box flex-tc">
+                    <view class="project-name">
+                        <view class="name">{{ucinfo.trainer.name}}</view>
+                        <view class="detail">{{ucinfo.venue.name}}</view>
+                        <view class="instructor">{{ucinfo.service.name}}</view>
+                    </view>
+                </view>
+                <view class="btn-box">
+                    <van-button type="primary" size="small" plain hairline round @click="goToDeatil(0)"> {{LANG.btn_more}} </van-button>
+                </view>
+                <view class="label-box">
+                    <view class="time">{{ucinfo.date}} {{ucinfo.start_time}} ~ {{ucinfo.end_time}}</view>
+                </view>
+            </view>
+        </block>
+        <!--团课-->
+        <block wx:elif="{{uctype===1}}">
+            <view class="my-schedule-list-item flex-tc">
+                <view class="project-box flex-tc">
+                    <view class="project-name">
+                        <view class="name">{{ucinfo.course.name}}</view>
+                        <view class="detail">{{ucinfo.trainer.name}}</view>
+                        <view class="instructor">{{ucinfo.venue.name}}</view>
+                    </view>
+                </view>
+                <view class="btn-box">
+                    <van-button type="primary" size="small" plain hairline round @click="goToDeatil(1)"> {{LANG.btn_more}} </van-button>
+                </view>
+                <view class="label-box">
+                    <view class="time">{{ucinfo.date}} {{ucinfo.cdate.start_time}} ~ {{ucinfo.cdate.end_time}}</view>
+                </view>
+            </view>
+        </block>
+        <!--活动-->
+        <block wx:elif="{{uctype===3}}">
+            <view class="my-schedule-list-item flex-tc">
+                <view class="project-box flex-tc">
+                    <view class="project-name">
+                        <view class="name">{{ucinfo.event.title}}</view>
+                        <view class="detail">{{ucinfo.event.venue}}</view>
+                    </view>
+                </view>
+                <view class="btn-box">
+                    <van-button type="primary" size="small" plain hairline round @click="goToDeatil(2)"> {{LANG.btn_more}} </van-button>
+                </view>
+                <view class="label-box">
+                    <view class="time"> {{ucinfo.event.date}} {{ucinfo.event.start_time}} ~ {{ucinfo.event.end_time}}</view>
+                </view>
+            </view>
+        </block>
+        <!--其他-->
+        <block wx:else>
+            <view class="empty-block">
+                <view class="empty-tip">{{LANG.no_upcoming}}</view>
+            </view>
+        </block>
+    </view>
+</template>
+<script>
+import wepy from 'wepy'
+export default class PopularList extends wepy.component {
+    props = {
+        uctype: {
+            default: 0
+        },
+        ucinfo: {
+            default: {}
+        },
+        LANG:{
+            default:{}
+        }
+    }
+   
+    methods = {
+        goToDeatil(index) {
+            wepy.navigateTo({
+                url: `/pages/my_schedule/index?tabIndex=${index}`
+            });
+        }
+    }
+   
+}
+</script>
+<style lang="less">
+@import '../../../style/var';
+
+.my-schedule-list-item-block {
+    .flex-tc {
+        display: flex;
+        align-items: center;
+    }
+
+    .empty-block {
+        color: #999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 120rpx;
+        border-bottom: 1rpx solid #DCDADA;
+        font-size: 32rpx;
+
+    }
+
+    .my-schedule-list-item {
+        padding: 20rpx 50rpx;
+        justify-content: space-between;
+        border-bottom: 1rpx solid #DCDADA;
+        color: #333;
+        position: relative;
+
+        .project-box {
+            flex: 1;
+            justify-content: space-between;
+            margin-top: 50rpx;
+
+            .project-name {
+                .name {
+                    font-size: 30rpx;
+                    font-weight: bold;
+                }
+
+                .detail {
+                    font-size: 28rpx;
+                    color: #999;
+                }
+
+                .instructor {
+                    font-size: 28rpx;
+                    color: @primary_color;
+                }
+            }
+        }
+
+        .btn-box {
+            width: 150rpx;
+            text-align: right;
+        }
+
+        .label-box {
+            background: rgba(216, 216, 216, 0.45);
+            border-radius: 0 200rpx 200rpx 0;
+            position: absolute;
+            top: 10rpx;
+            left: 0;
+            padding: 0 20rpx;
+            height: 52rpx;
+            line-height: 52rpx;
+
+            .time {
+                color: @primary_color;
+                font-size: 26rpx;
+                text-align: center;
+
+            }
+        }
+    }
+
+}
+</style>

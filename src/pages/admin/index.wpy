@@ -1,0 +1,407 @@
+<!--
+ * @Description: 管理员录入资料后台
+ * @Version: 1.0
+ * @Autor: yongqing
+ * @Date: 2020-01-15 14:53:49
+ * @LastEditors: yongqing
+ * @LastEditTime: 2020-03-08 17:17:41
+ -->
+<template>
+    <view class="admin-container">
+        <van-cell-group>
+            <van-field
+                label="产品名称"
+                clearable
+                value="{{ form.car_name }}"
+                data-prop="car_name"
+                @input="formInput"
+                placeholder="请输入产品名称"
+            />
+            <van-field
+                label="产品价格"
+                clearable
+                value="{{ form.price }}"
+                data-prop="price"
+                @input="formInput"
+                placeholder="请输入产品价格"
+            />
+            <van-field
+                label="金融价格"
+                clearable
+                value="{{ form.vip_price }}"
+                data-prop="vip_price"
+                @input="formInput"
+                placeholder="请输入金融价格"
+            />
+            <van-field
+                label="联系电话"
+                clearable
+                value="{{ form.phone_num }}"
+                data-prop="phone_num"
+                @input="formInput"
+                placeholder="请输入联系销售"
+            />
+        </van-cell-group>
+        <van-field label="标签" value="{{tagNames}}" icon="arrow" disabled @tap="onSelectTag" />
+        <van-field label="车辆标签" value="{{carTags}}" icon="arrow" disabled @tap="onSelectCarTag" />
+        <van-panel title="轮播图上传">
+            <van-uploader
+                file-list="{{ form.banner_img }}"
+                name="banner_img"
+                max-count="6"
+                bind:after-read="upLoadImage"
+                bind:delete="deleteImage"
+            />
+        </van-panel>
+        <van-panel title="服务保障图">
+            <van-uploader
+                file-list="{{ form.service_img }}"
+                name="service_img"
+                max-count="1"
+                bind:after-read="upLoadImage"
+                bind:delete="deleteImage"
+            />
+        </van-panel>
+        <van-panel title="基本信息">
+            <view class="base-input-block">
+                <view class="base-input-block-item" wx:for="{{form.base}}" wx:key="index">
+                    <van-field
+                        placeholder="请输入属性名称"
+                        size="small"
+                        data-prop="name"
+                        data-index="{{index}}"
+                        @input="baseInput"
+                        value="{{item.name}}"
+                        clearable
+                    />
+                    <van-field
+                        placeholder="请输入属性值"
+                        size="small"
+                        data-index="{{index}}"
+                        data-prop="value"
+                        @input="baseInput"
+                        value="{{item.value}}"
+                        clearable
+                    />
+                    <van-icon name="close" color="#f40" size="40rpx" @tap="onDeleteBase({{index}})" />
+                </view>
+                <view class="add-base" @tap="onAddBase">
+                    <van-icon name="add-o" color="#999" size="60rpx" />
+                </view>
+            </view>
+        </van-panel>
+        <van-panel title="复检报告">
+            <view class="form-content-block">
+                <view class="form-item">
+                    <view class="form-item__title">事故排查</view>
+                    <van-uploader
+                        file-list="{{ form.detail_accident }}"
+                        name="detail_accident"
+                        bind:after-read="upLoadImage"
+                        bind:delete="deleteImage"
+                    />
+                </view>
+                <view class="form-item">
+                    <view class="form-item__title">底盘检测</view>
+                    <van-uploader
+                        file-list="{{ form.detail_underpan }}"
+                        name="detail_underpan"
+                        bind:after-read="upLoadImage"
+                        bind:delete="deleteImage"
+                    />
+                </view>
+                <view class="form-item">
+                    <view class="form-item__title">轻微碰撞</view>
+                    <van-uploader
+                        file-list="{{ form.detail_slight }}"
+                        name="detail_slight"
+                        bind:after-read="upLoadImage"
+                        bind:delete="deleteImage"
+                    />
+                </view>
+                <view class="form-item">
+                    <view class="form-item__title">易损耗部件</view>
+                    <van-uploader
+                        file-list="{{ form.detail_easyWear }}"
+                        name="detail_easyWear"
+                        bind:after-read="upLoadImage"
+                        bind:delete="deleteImage"
+                    />
+                </view>
+                <view class="form-item">
+                    <view class="form-item__title">常用功能</view>
+                    <van-uploader
+                        file-list="{{ form.detail_function }}"
+                        name="detail_function"
+                        bind:after-read="upLoadImage"
+                        bind:delete="deleteImage"
+                    />
+                </view>
+                <view class="form-item">
+                    <view class="form-item__title">启动检测</view>
+                    <van-uploader
+                        file-list="{{ form.detail_start }}"
+                        name="detail_start"
+                        bind:after-read="upLoadImage"
+                        bind:delete="deleteImage"
+                    />
+                </view>
+                <view class="form-item">
+                    <view class="form-item__title">外观内饰</view>
+                    <van-uploader
+                        file-list="{{ form.detail_surface }}"
+                        name="detail_surface"
+                        bind:after-read="upLoadImage"
+                        bind:delete="deleteImage"
+                    />
+                </view>
+            </view>
+        </van-panel>
+        <view class="btn-footer">
+            <van-button type="primary" block @tap="onSubmit">提交</van-button>
+        </view>
+
+        <TagSelect :tagList.sync="tagList" dbname="tags" :baseTagsSelected.sync="baseTagsSelected" @change.user="tagListChange" />
+        <CarTagSelect
+            :tagList.sync="carTagList"
+            dbname="car_tags"
+            :baseTagsSelected.sync="baseCarTagsSelected"
+            @change.user="carTagListChange"
+        />
+    </view>
+</template>
+<script>
+import wepy from "wepy"
+import md5 from "md5"
+import input from "@/mixins/input"
+import validator from "@/mixins/validator"
+import TagSelect from "@/components/tag-select"
+export default class Admin extends wepy.page {
+    config = {
+        navigationBarTitleText: "管理员后台"
+    }
+    data = {
+        description: "",
+        form: {
+            banner_img: [],
+            car_name: "",
+            price: "",
+            vip_price: "",
+            phone_num: [],
+            tags: [],
+            car_tags: [],
+            service_img: [],
+            base: [
+                {
+                    name: "",
+                    value: ""
+                }
+            ],
+            detail_accident: [],
+            detail_underpan: [],
+            detail_slight: [],
+            detail_easyWear: [],
+            detail_function: [],
+            detail_start: [],
+            detail_surface: [],
+            is_deleted: 0
+        },
+        rules: {
+            car_name: [{ verify: "isNotEmpty", message: "请输入产品名称" }],
+            price: [{ verify: "isNotEmpty", message: "请输入产品价格" }],
+            vip_price: [{ verify: "isNotEmpty", message: "请输入金融价格" }]
+        },
+        tagNames: "",
+        carTags: "",
+        tagList: [],
+        baseTagsSelected: [],
+        carTagList: [],
+        baseCarTagsSelected: []
+    }
+    mixins = [input, validator]
+
+    components = {
+        TagSelect: TagSelect,
+        CarTagSelect: TagSelect
+    }
+
+    methods = {
+        baseInput(e) {
+            let { prop, index } = e.currentTarget.dataset
+            this.form.base[index][prop] = e.detail
+            this.$apply()
+        },
+        onDeleteBase(index) {
+            this.form.base.splice(index, 1)
+            this.$apply()
+        },
+        onAddBase() {
+            this.form.base.push({
+                name: "",
+                value: ""
+            })
+            this.$apply()
+        },
+        onSelectTag() {
+            this.$invoke("TagSelect", "show")
+        },
+        onSelectCarTag() {
+            this.$invoke("CarTagSelect", "show")
+        },
+        tagListChange(obj) {
+            let arr = []
+            obj.forEach(item => {
+                arr.push(item.name)
+            })
+            this.tagNames = arr.join(",") //显示
+            this.form["tags"] = obj //关键字赋值
+        },
+        carTagListChange(obj) {
+            let arr = []
+            obj.forEach(item => {
+                arr.push(item.name)
+            })
+            this.carTags = arr.join(",") //显示
+            this.form["car_tags"] = obj //关键字赋值
+        }
+    }
+    onLoad() {
+        this.getTagList()
+        this.getCarTagList()
+    }
+    getTagList() {
+        this.$parent.db
+            .collection("tags")
+            .where({
+                is_deleted: false
+            })
+            .get()
+            .then(res => {
+                this.tagList = res.data
+                this.$apply()
+            })
+    }
+    getCarTagList() {
+        this.$parent.db
+            .collection("car_tags")
+            .where({
+                is_deleted: false
+            })
+            .get()
+            .then(res => {
+                this.carTagList = res.data
+                this.$apply()
+            })
+    }
+
+    
+
+    deleteImage(event) {
+        console.log(event)
+        let { index, name } = event.detail
+        this.form[name].splice(index, 1)
+        this.$apply()
+    }
+    upLoadImage(event) {
+        const { file, name } = event.detail
+        let filename = md5(new Date().getTime())
+        wx.showLoading({
+            title: "上传中"
+        })
+        wx.cloud
+            .uploadFile({
+                cloudPath: filename,
+                filePath: file.path
+            })
+            .then(res => {
+                this.form[name].push({ url: res.fileID, name: filename, isImage: true })
+                wx.hideLoading()
+                this.$apply()
+            })
+            .catch(error => {
+                wx.hideLoading()
+            })
+    }
+    onSubmit() {
+        console.log(this.form)
+        this.validate("form", valid => {
+            if (valid.length == 0) {
+                this.saveCar()
+            }
+        })
+    }
+    saveCar() {
+        wx.showLoading({
+            title: "提交中"
+        })
+        this.$parent.db
+            .collection("cars")
+            .add({
+                data: this.form
+            })
+            .then(res => {
+                wx.showToast({
+                    title: "添加成功",
+                    icon: "success",
+                    duration: 2000
+                })
+                this.reset()
+            })
+    }
+    reset() {
+        this.form = {
+            banner_img: [],
+            car_name: "",
+            price: "",
+            vip_price: "",
+            phone_num: [],
+            tags: [],
+            car_tags: [],
+            service_img: [],
+            base: [
+                {
+                    name: "",
+                    value: ""
+                }
+            ],
+            detail_accident: [],
+            detail_underpan: [],
+            detail_slight: [],
+            detail_easyWear: [],
+            detail_function: [],
+            detail_start: [],
+            detail_surface: [],
+            is_deleted: 0
+        }
+    }
+}
+</script>
+<style lang="less">
+.admin-container {
+    .form-content-block {
+        .form-item {
+            &__title {
+                margin: 0;
+                padding: 20rpx 0;
+                color: rgba(69, 90, 100, 0.6);
+                font-weight: normal;
+                font-size: 14px;
+                line-height: 16px;
+            }
+        }
+    }
+    .base-input-block {
+        &-item {
+            display: flex;
+            align-items: center;
+        }
+        .add-base {
+            text-align: center;
+            margin-top: 20rpx;
+        }
+    }
+    .van-panel__content {
+        padding: 10rpx 20rpx;
+    }
+}
+</style>

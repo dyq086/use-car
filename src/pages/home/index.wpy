@@ -1,0 +1,98 @@
+<template>
+    <view class="home-container">
+        <view class="header-title">{{LANG.explore}}</view>
+        <view class="export-block">
+            <navigator url="/pages/instructor/index" open-type="switchTab">
+                <image src="../../assets/images/icon_private.png" class="export-image" />
+            </navigator>
+            <navigator url="/pages/group/index" open-type="switchTab">
+                <image src="../../assets/images/icon_group.png" class="export-image" />
+            </navigator>
+            <navigator url="/pages/events/index" open-type="switchTab">
+                <image src="../../assets/images/icon_event.png" class="export-image" />
+            </navigator>
+        </view>
+        <view class="header-title">{{LANG.upcoming}}</view>
+        <view class="upcomin-block">
+            <ScheduleList :uctype.sync="uctype" :ucinfo.sync="ucinfo" :LANG.sync="LANG" />
+        </view>
+        <block wx:if="{{venueList.length>0}}">
+            <view class="header-title">{{LANG.location}}</view>
+            <view class="popular-block">
+                <PopularList :list.sync="venueList" />
+            </view>
+        </block>
+    </view>
+</template>
+<script>
+import wepy from "wepy";
+import ScheduleList from './components/ScheduleList'
+import PopularList from './components/PopularList'
+import interfaces from '@/interfaces/index'
+import check_info from '@/mixins/check_info'
+import Lang from '@/mixins/lang'
+export default class Home extends wepy.page {
+    config = {
+        navigationBarTitleText: "",
+    };
+    data = {
+        venueList: [],
+        uctype: 0,
+        ucinfo: {},
+    };
+    components = {
+        ScheduleList,
+        PopularList
+    }
+    mixins = [check_info,Lang]
+    async onShow() {
+        await this._getHomeVenues();
+        await this._getUpcoming();
+        this.validateOptimize();
+    }
+    async _getHomeVenues() {
+        let res = await interfaces.getHomeVenues();
+        if (res.success) {
+            let { venues } = res.data;
+            this.venueList = venues;
+            this.$apply();
+        }
+    }
+    async _getUpcoming() {
+        let res = await interfaces.getUpcoming();
+        if (res.success) {
+            let { books, type } = res.data;
+            if (books.length > 0) {
+                this.ucinfo = books[0]
+            }
+            this.uctype = type;
+            this.$apply();
+        }
+    }
+
+
+
+}
+</script>
+<style lang="less">
+@import '../../style/mixins';
+
+.home-container {
+    .header-title {
+        font-size: 52rpx;
+        color: #333;
+        padding: 20rpx 40rpx;
+    }
+
+    .export-block {
+        display: flex;
+        justify-content: space-between;
+        padding: 20rpx 50rpx;
+
+        .export-image {
+            width: 188rpx;
+            height: 158rpx;
+        }
+    }
+}
+</style>

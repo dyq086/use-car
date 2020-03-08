@@ -1,0 +1,234 @@
+<template>
+    <view class="calendar-container">
+        <view class="current-mount-box">{{currentMonth}}月 {{currentMonthEN}}</view>
+        <view class="week-box">
+            <view class="week-item" wx:for="{{LANG.language==='en'?weeksEN:weeksCh}}" wx:key="{{index}}">{{item}}</view>
+        </view>
+        <swiper class="swiper-container" current="{{currentSwiperIndex}}" bindchange="swiperChange">
+            <block wx:for="{{calendarList}}" wx:key="{{index}}">
+                <swiper-item class="swiper-item">
+                    <view class="days-box">
+                        <view class="days-item {{currentDayInex==index?'active':''}}" wx:for="{{item.weeks}}" wx:key="{{index}}" data-index="{{index}}" wx:for-item="citem" @tap.stop="switchDay">
+                            <view class="item-inner today" wx:if="{{today==citem.formatDay}}">今</view>
+                            <view class="item-inner day" wx:else>{{citem.day}}</view>
+                        </view>
+                    </view>
+                </swiper-item>
+            </block>
+        </swiper>
+    </view>
+</template>
+<script>
+import wepy from 'wepy'
+import moment from 'moment'
+export default class Calendar extends wepy.component {
+    props = {
+        LANG: {
+            default: {},
+            type: Object
+        }
+    }
+    data = {
+        weeksEN: ['Sun', 'Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat'],
+        weeksCh: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
+        calendarList: [],
+        today: '',
+        currentSwiperIndex: 0,
+        currentDayInex: -1,
+        currentMonthEN: moment().format('MMMM'),
+        currentMonth: moment().format('M'),
+    }
+    methods = {
+        swiperChange(e) {
+            //: 如果在 bindchange 的事件回调函数中使用 setData 改变 current 值，则有可能导致 setData 被不停地调用，因而通常情况下请在改变 current 值前检测 source 字段来判断是否是由于用户触摸引起。
+            let current = e.detail.current;
+            if (e.detail.source == 'touch') {
+                this.currentSwiperIndex = current;
+            }
+            if (this.currentDayInex < 0) {
+                this.currentDayInex = 0;
+            }
+            let currentObject = this.calendarList[current].weeks[this.currentDayInex];
+
+            this.$apply();
+            this._setCurrentMounth(currentObject.month, currentObject.monthEn)
+            this.$emit('change', currentObject);
+
+        },
+        switchDay(e) {
+            let index = e.currentTarget.dataset.index;
+            this.currentDayInex = index;
+            let currentObject = this.calendarList[this.currentSwiperIndex].weeks[index];
+            this.$apply();
+            this._setCurrentMounth(currentObject.month, currentObject.monthEn)
+            this.$emit('change', currentObject);
+        }
+    }
+
+
+    onLoad() {
+        this._init();
+    }
+    _setCurrentMounth(month, monthEn) {
+        this.currentMonth = month;
+        this.currentMonthEN = monthEn;
+        this.$apply();
+
+    }
+    _init() {
+        this.today = moment().format('YYYY-MM-DD');
+
+        //获取上n个自然周时间对象
+        // let lastWeekArray = this._getLastWeek(5);
+        //获取当前及下n个自然周时间对象
+        let nextWeekArray = this._getNextWeek(5);
+        // console.log(nextWeekArray)
+        // this.calendarList = [...lastWeekArray, ...nextWeekArray];
+        this.calendarList = nextWeekArray;
+
+        this.$apply();
+
+    }
+    /**
+     * 获取下几周数据
+     * @param  {Number} times [description]
+     * @return {[type]}       [description]
+     */
+    _getNextWeek(times = 2) {
+        let arr = [];
+        for (let i = 0; i <= times; i++) {
+            let obj = {};
+            let addDay = moment(this.today).add(7 * i, 'd').format('YYYY-MM-DD');
+            obj['day'] = addDay;
+            obj['weeks'] = this._getDays(addDay);
+            arr.push(obj)
+        }
+        return arr;
+    }
+    /**
+     * 获取上周几周数据
+     * @return {[type]} [description]
+     */
+    _getLastWeek(times = 2) {
+        let arr = [];
+        for (let i = times; i > 0; i--) {
+            let obj = {};
+            let subtractDay = moment(this.today).subtract(7 * i, 'd').format('YYYY-MM-DD');
+            obj['day'] = subtractDay;
+            obj['weeks'] = this._getDays(subtractDay);
+            arr.push(obj)
+        }
+        return arr;
+    }
+    /**
+     * 通过日期计算当前一个自然周
+     * @param  {[type]} day [description]
+     * @return {[type]}     [description]
+     */
+    _getDays(day = moment()) {
+        let arr = []
+        /* 计算传进来的日期为星期几 */
+        let weekOfDate = Number(moment(day).format('e'));
+        for (let i = 0; i < this.weeksCh.length; i++) {
+            let calculateDay = moment(day).subtract(weekOfDate - i, 'd');
+            let { years, months, date } = calculateDay.toObject();
+            arr.push({
+                year: years,
+                month: months + 1,
+                day: date,
+                week: this.weeksCh[i],
+                formatDay: calculateDay.format('YYYY-MM-DD'),
+                monthEn: calculateDay.format('MMMM')
+            })
+        }
+
+        return arr
+
+    }
+}
+</script>
+<style lang="less">
+@import '../style/mixins';
+
+.calendar-container {
+    background: #fff;
+    position: relative;
+    z-index: 3;
+
+    .current-mount-box {
+        padding: 22rpx 0;
+        font-size: 36rpx;
+        color: #000000;
+        letter-spacing: 3.38px;
+        text-align: center;
+        font-weight: 400;
+    }
+
+    .week-box {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10rpx 20rpx 0 20rpx;
+
+        .week-item {
+            font-size: 26rpx;
+            color: #999;
+            width: 80rpx;
+            text-align: center;
+        }
+
+    }
+
+    .swiper-container {
+        height: 90rpx;
+
+        .swiper-item {
+            .days-box {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 15rpx 20rpx;
+
+                .days-item {
+                    font-size: 32rpx;
+                    color: #666;
+                    width: 80rpx;
+                    text-align: center;
+
+                    .item-inner {
+                        width: 60rpx;
+                        height: 60rpx;
+                        line-height: 60rpx;
+                        border-radius: 100%;
+                        margin: 0 auto;
+                        text-align: center;
+                    }
+
+                    .day {
+                        font-weight: bold;
+                    }
+
+                    .today {
+                        font-size: 30rpx;
+                        background: #333;
+                        color: #fff;
+
+                    }
+
+                    &.active {
+                        .day {
+                            font-size: 32rpx;
+                            .linear-bg(180deg, #0996CD, #3FCD7A);
+                            color: #fff;
+                        }
+
+                        .today {
+                            .linear-bg(180deg, #0996CD, #3FCD7A);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+</style>

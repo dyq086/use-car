@@ -1,0 +1,13 @@
+<template>
+  <view style="height:{{height}}px"></view>
+</template>
+<script>
+  import wepy from 'wepy'
+  export default class White extends wepy.component {
+    props = {
+      height: {
+        default: 0
+      }
+    }
+  }
+</script>

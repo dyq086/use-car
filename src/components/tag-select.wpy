@@ -1,0 +1,264 @@
+<template>
+    <view wx:if="{{show}}">
+        <van-popup show="{{ show }}" position="right" bind:close="onClose">
+            <view class="tag-block">
+                <view class="tag-title">请选择关键字</view>
+                <scroll-view class="scroll-box" scroll-y>
+                    <view class="tag-item-box">
+                        <view class="col-8" wx:for="{{tagList}}" wx:key="index" wx:for-item="item" custom-class="van-ellipsis">
+                            <view class="tag-item {{item.selected?'active':''}}" @tap="selectTag({{index}})">{{ item.name }}</view>
+                            <view class="iconfont icon-del" @tap.stop="delTag({{index}})"></view>
+                            <view class="iconfont icon-check" wx:if="{{item.selected}}"></view>
+                        </view>
+                        <view class="col-8">
+                            <view class="tag-item bgnone">
+                                <van-button size="small" @tap="onAdd">
+                                    <view class="iconfont icon-add" />
+                                </van-button>
+                            </view>
+                        </view>
+                    </view>
+                </scroll-view>
+            </view>
+            <view class="btn-footer">
+                <van-button type="primary" block round @tap="onConfirm">确定</van-button>
+            </view>
+        </van-popup>
+        <van-dialog
+            title="添加标签"
+            use-slot
+            show="{{ visableDialog }}"
+            show-cancel-button
+            show-confirm-button
+            bind:confirm="onAddChange"
+            bind:close="onAddChange"
+        >
+            <van-field value="{{custom_tag}}" placeholder="请输入标签" @input="onInput" style="margin:20px 0" />
+        </van-dialog>
+    </view>
+</template>
+<script>
+import wepy from "wepy"
+import white from "@/components/white"
+export default class zanTag extends wepy.component {
+    props = {
+        tagList: {
+            type: Array,
+            default: []
+        },
+        baseTagsSelected: {
+            type: Array,
+            default: []
+        },
+        dbname: {
+            type: String,
+            default: ""
+        }
+    }
+    data = {
+        show: false,
+        visableDialog: false,
+        custom_tag: ""
+    }
+    components = {
+        white
+    }
+    computed = {
+        selectedTagList() {
+            return this.tagList.filter(item => {
+                return item.selected
+            })
+        }
+    }
+
+    methods = {
+        selectTag(index) {
+            let item = this.tagList[index]
+            if (item.selected === undefined) {
+                item["selected"] = false
+            }
+            item.selected = !item.selected
+            this.$apply()
+            this.$emit("change", this.selectedTagList)
+        },
+        onClose() {
+            this.show = false
+            this.$apply()
+        },
+        show() {
+            this.show = true
+        },
+        onConfirm(event) {
+            this.show = false
+        },
+        onAddChange(event) {
+            if (event.detail === "confirm") {
+                if (this.custom_tag == "") {
+                    wepy.showToast({
+                        title: "请输入内容",
+                        icon: "none"
+                    })
+                    return false
+                }
+
+                const db = wx.cloud.database()
+                db.collection(this.dbname)
+                    .add({
+                        data: {
+                            name: this.custom_tag,
+                            is_deleted: false
+                        }
+                    })
+                    .then(res => {
+                        this.tagList.push({ _id: res._id, name: this.custom_tag })
+                        this.custom_tag = ""
+                        this.$apply()
+                    })
+            } else {
+                this.visableDialog = false
+            }
+
+            this.$apply()
+        },
+        onInput(e) {
+            this.custom_tag = e.detail
+            this.$apply()
+        },
+        delTag(index) {
+            wx.showModal({
+                title: "温馨提示",
+                content: "确认要删除吗",
+                success: res => {
+                    if (res.confirm) {
+                        this.cloudTag(index)
+                    } else if (res.cancel) {
+                        console.log("用户点击取消")
+                    }
+                }
+            })
+        },
+
+        onAdd() {
+            this.visableDialog = true
+        }
+    }
+    cloudTag(index) {
+        let _id = this.tagList[index]._id
+        const db = wx.cloud.database()
+        db.collection(this.dbname)
+            .doc(_id)
+            .update({
+                data: {
+                    is_deleted: true
+                }
+            })
+            .then(res => {
+                this.tagList.splice(index, 1)
+                this.$apply()
+            })
+    }
+    watch = {
+        baseTagsSelected(objValue) {
+            this.tagList.forEach(citem => {
+                objValue.forEach(item => {
+                    if (item._id == citem._id) {
+                        citem["selected"] = true
+                    }
+                })
+            })
+            this.$apply()
+        },
+        show(val) {
+            this.$emit("onVisible", val)
+        }
+    }
+}
+</script>
+<style lang="less">
+.tag-block {
+    width: 80vw;
+    height: 100vh;
+    padding: 10rpx;
+
+    .tag-title {
+        font-size: 26rpx;
+        color: #666;
+        padding: 10rpx 0;
+    }
+
+    .scroll-box {
+        height: 85vh;
+        overflow: auto;
+
+        .tag-item-box {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .col-8 {
+            position: relative;
+            width: 33.33%;
+        }
+    }
+
+    .tag-item {
+        display: block;
+        font-size: 28rpx;
+        background: #efefef;
+        color: #666;
+        text-align: center;
+        margin: 10rpx auto;
+        height: 70rpx;
+        line-height: 70rpx;
+        width: 180rpx;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        box-sizing: border-box;
+
+        &.active {
+            color: #409eff;
+            border: 1px solid #409eff;
+            background: none;
+        }
+
+        &.bgnone {
+            background: none;
+        }
+    }
+
+    .icon-del {
+        position: absolute;
+        top: 0rpx;
+        right: 0rpx;
+        color: #999;
+        z-index: 9;
+        background: #fff;
+        border-radius: 100px;
+    }
+
+    .icon-check {
+        position: absolute;
+        bottom: 10rpx;
+        right: 10rpx;
+        color: #409eff;
+    }
+
+    .btn-footer {
+        position: fixed;
+        width: 100%;
+        height: 10vh;
+        line-height: 10vh;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+
+        .van-button {
+            margin-top: 10rpx;
+            width: 90%;
+        }
+    }
+}
+</style>

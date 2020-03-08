@@ -1,0 +1,83 @@
+<style lang="less">
+</style>
+<template>
+    <view>
+        <van-popup show="{{ show }}" position="bottom" @close="onClose">
+            <van-picker columns="{{ dealColumns }}" value-key="{{valueKey}}" show-toolbar title="{{title}}" @cancel="onClose" @confirm="onConfirm" />
+        </van-popup>
+    </view>
+</template>
+<script>
+import wepy from 'wepy'
+export default class zanPicker extends wepy.component {
+    props = {
+        title: {
+            type: String,
+            default: ''
+        },
+        valueKey: {
+            type: String,
+            default: ''
+        },
+        columns: {
+            type: Array,
+            default: []
+        },
+        prop: {
+            default: ''
+        },
+        defaultValue: {
+            default: ''
+        }
+    }
+    data = {
+        show: false,
+    }
+    watch = {
+        show(val) {
+            this.$emit("onVisible", val)
+        }
+    }
+    computed = {
+        dealColumns() {
+            if (this.defaultValue && this.columns.length > 0) {
+                let defaultIndex = 0;
+                this.columns.forEach((item, key) => {
+                    if (item.id == this.defaultValue) {
+                        defaultIndex = key;
+                    }
+                })
+                return [{
+                    values: this.columns,
+                    defaultIndex: defaultIndex
+                }]
+            } else {
+                return this.columns;
+            }
+
+
+
+        }
+    }
+    onLoad(options) {
+
+    }
+
+    methods = {
+        onClose() {
+            this.show = false;
+            this.$apply();
+        },
+        show() {
+            this.show = true;
+            this.$apply();
+        },
+        onConfirm(event) {
+            const { value, index } = event.detail;
+            this.$emit("change", this.defaultValue ? value[0] : value, this.prop);
+            this.show = false;
+            this.$apply();
+        }
+    }
+}
+</script>
