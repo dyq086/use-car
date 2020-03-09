@@ -30,24 +30,8 @@ page {
     margin: 20rpx 40rpx;
 }
 
-.van-tag {
-    display: block;
-}
 
-.van-cell {
-    padding: 30rpx !important;
-}
 
-.van-cell__title {
-    color: #666;
-    font-size: 32rpx !important;
-    flex: 0.5 !important;
-}
-
-.van-cell__value {
-    color: #000 !important;
-    font-size: 32rpx !important;
-}
 </style>
 <script>
 import wepy from "wepy"
@@ -55,7 +39,7 @@ import interfaces from "./interfaces"
 import "wepy-async-function"
 export default class extends wepy.app {
     config = {
-        pages: ["pages/admin/index", "pages/home/index"],
+        pages: ["pages/home/index", "pages/home/detail", "pages/admin/index"],
         window: {
             navigationBarBackgroundColor: "#fff",
             navigationBarTitleText: "WeChat",

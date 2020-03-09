@@ -1,245 +1,176 @@
+<!--
+ * @Description: 
+ * @Version: 1.0
+ * @Autor: yongqing
+ * @Date: 2019-09-03 23:23:52
+ * @LastEditors: yongqing
+ * @LastEditTime: 2020-03-08 23:02:10
+ -->
 <template>
-    <view class="events-detail-container">
-        <Banner :imgUrls.sync="imaArray" height="550" />
-        <view class="instructor-box">
-            <view class="instructor-info-box">
-                <view class="left">
-                    <view class="title">{{venue.name}}</view>
-                    <view class="instructor"><text class="iconfont icon-dingwei" />{{venue.address}}</view>
-                    <view class="phone_no" @tap="makePhoneCall"><text class="iconfont icon-phone" />{{venue.phone_no}}</view>
-                </view>
-                <view class="right">
-                    <button class="iconfont icon-share" open-type="share"></button>
-                </view>
+    <view class="home-detail-container">
+        <Banner :imgUrls.sync="imgUrls" height="420" />
+        <view class="info-content">
+            <view class="price-box">
+                <text>{{ info.price }}万</text>
+                <van-tag type="danger" round size="large">金融专享价:{{ info.vip_price }}万</van-tag>
             </view>
-            <view class="content-block">
-                <view class="content-block-title">场馆地图</view>
-                <view class="content-block-inner">
+            <view class="info-name-box">
+                <view class="name">{{ info.car_name }}</view>
+                <view class="tag-box">
+                    <van-tag plain wx:for="{{info.tags}}" wx:key="index">{{ item.name }}</van-tag>
                 </view>
-                <map id="map" scale="14" @tap="openLocation" longitude="{{longitude}}" latitude="{{latitude}}" markers="{{markers}}" show-scale show-location style="width: 100%; height: 400rpx;"></map>
             </view>
         </view>
+        <van-cell is-link>
+            <view slot="title">
+                <van-tag type="danger" color="#f2826a">金融</van-tag>
+                <text class="van-cell-text">首付一成 {{ info.vip_price * 0.1 }}万开回家</text>
+            </view>
+        </van-cell>
+        <van-panel title="服务保障">
+            <image src="{{info.service_img[0].url}}" class="service_img" />
+        </van-panel>
+
+        <van-panel title="基本信息">
+            <view class="base-content-block">
+                <view class="base-content-block-item" wx:for="{{info.base}}" wx:key="index">
+                    <view class="title">{{ item.name }}</view>
+                    <view class="value">{{ item.value }}</view>
+                </view>
+            </view>
+            <view class="base-car-tag-box">
+                <van-tag wx:for="{{info.car_tags}}" color="#b1b1b1" size="medium" wx:key="index">{{ item.name }}</van-tag>
+            </view>
+        </van-panel>
+        <van-panel title="复检报告">
+            <van-cell title="事故排查" value="5项" class="custom-class" is-link />
+            <van-cell title="底盘检测" value="5项" class="custom-class" is-link />
+            <van-cell title="轻微碰撞" value="5项" class="custom-class" is-link />
+            <van-cell title="易损耗部件" value="5项" class="custom-class" is-link />
+            <van-cell title="常用功能" value="5项" class="custom-class" is-link />
+            <van-cell title="外观内饰" value="5项" class="custom-class" is-link />
+        </van-panel>
+        <White height="80" />
+        <van-goods-action>
+            <van-goods-action-icon icon="home-o" text="首页" bind:click="onClickIcon" />
+            <van-goods-action-icon icon="chat-o" text="客服" bind:click="onClickIcon" />
+            <van-goods-action-icon icon="share" text="分享" bind:click="onClickIcon" />
+            <van-goods-action-button text="立即预约" bind:click="onClickButton" />
+        </van-goods-action>
     </view>
 </template>
 <script>
-import wepy from "wepy";
-import White from '@/components/white'
-import Banner from '@/components/banner'
-import interfaces from '@/interfaces/index'
-const QQMapWX = require('@/utils/qqmap-wx-jssdk.min.js');
-export default class VenueDetail extends wepy.page {
+import wepy from "wepy"
+import White from "@/components/white"
+import Banner from "@/components/banner"
+export default class HomeDetail extends wepy.page {
     config = {
         navigationBarTitleText: ""
-    };
+    }
     components = {
         White,
         Banner
-    };
+    }
     data = {
-        imaArray: [],
-        venue: {},
-        venue_id: '',
-        is_order: false,
-        is_vip: false,
-        markers: [],
-        qqmapsdk: '',
-        longitude: '',
-        latitude: ''
+        info: {},
+        imgUrls: []
     }
-    methods = {
-        async makePhoneCall() {
-            wepy.makePhoneCall({
-                phoneNumber: this.venue.phone_no
-            })
-        },
-        openLocation() {
-            wepy.openLocation({
-                latitude: this.latitude,
-                longitude: this.longitude,
-                name: this.venue.name,
-                address: this.venue.address,
-            })
-        },
-    };
+    methods = {}
+
     onLoad(params) {
-        let id = params.id;
-        this.venue_id = id;
-        // 实例化API核心类
-        this.qqmapsdk = new QQMapWX({
-            key: 'IS6BZ-ZXNY2-LTWUQ-CRMTJ-X52W7-7MBJE'
-        });
-        this.$apply();
-
+        let id = params.id
+        this.getCarInfo(id)
     }
-    onShow() {
-        this._getHomeVenuesDetail();
+    getCarInfo(id) {
+        this.$parent.db
+            .collection("cars")
+            .doc(id)
+            .get()
+            .then(res => {
+                this.info = res.data
+                this.imgUrls = res.data.banner_img
+                this.$apply()
+            })
     }
-
-    async _getHomeVenuesDetail(id) {
-        let res = await interfaces.getHomeVenuesDetail({ id: this.venue_id })
-        if (res.success) {
-            this.venue = res.data.venue;
-            let { img_url, address } = res.data.venue;
-            this.imaArray = [img_url];
-            this.getLoaction(address)
-            this.$apply();
-        }
-    }
-    getLoaction(address) {
-        this.qqmapsdk.geocoder({
-            address,
-            success: (res) => {
-                console.log(res)
-                let { location } = res.result;
-                this.setLocation(location)
-            },
-            fail: (res) => {
-                console.log(res);
-            }
-        });
-    }
-    setLocation({ lat, lng }) {
-        this.longitude = lng;
-        this.latitude = lat;
-        this.markers = [{
-            iconPath: "/icons/map-marker.png",
-            id: 1,
-            latitude: lat,
-            longitude: lng,
-            width: 25,
-            height: 25
-        }]
-        this.$apply();
-    }
-
-
 }
 </script>
 <style lang="less">
-@import '../../style/var';
+@import "../../style/var";
 
-.events-detail-container {
-    .header-image {
-        display: block;
-        height: 450rpx;
-        width: 100%;
-        border-radius: 20rpx;
-    }
-
-    .instructor-box {
+.home-detail-container {
+    .info-content {
         padding: 20rpx 40rpx;
-
-        .instructor-info-box {
+        .price-box {
+            padding: 20rpx 0;
+            font-size: 48rpx;
+            font-weight: 500;
+            border-bottom: 1rpx solid #efefef;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-
-            .left {
-                font-size: 32rpx;
-
-                .title {
-                    color: #333;
-                    font-weight: bold;
-                    font-size: 36rpx;
-                }
-
-                .instructor {
-                    color: #999;
-                    font-size: 28rpx;
-                    margin-top: 10rpx;
-                }
-
-                .phone_no {
-                    color: #999;
-                    font-size: 28rpx;
-                    margin-top: 10rpx;
-                    text-decoration: underline;
-                }
-            }
-
-            .right {
-                .icon-share {
-                    font-size: 38rpx;
-                    color: @primary_color;
-                }
-
-                button {
-                    background-color: #fff;
-                    margin: 0;
-                    padding: 0;
-
-                    &:after {
-                        border: none;
-                    }
-                }
+            text {
+                margin-right: 20rpx;
             }
         }
-
-        .clazz-info-box {
-            background: #FFFFFF;
-            border: 1rpx solid #EFEFEF;
-            box-shadow: 0 8rpx 16rpx 0 rgba(0, 0, 0, 0.10);
-            border-radius: 16rpx;
-            box-sizing: border-box;
-            padding: 26rpx 14rpx;
+        .info-name-box {
             margin-top: 20rpx;
-
-            .item {
+            .name {
                 font-size: 30rpx;
-                color: #666;
-                display: flex;
-                align-items: center;
-                margin-top: 15rpx;
-
-                .iconfont {
-                    color: currentColor;
-                    padding-right: 10rpx;
-                    font-size: 36rpx;
-                }
-
+                color: #333;
             }
-        }
-
-        .content-block {
-            margin-top: 20rpx;
-
-            &-title {
-                font-size: 40rpx;
-                color: #000000;
-                font-weight: bold;
-                position: relative;
-                padding: 20rpx 0;
-
-                &:after {
-                    content: '';
-                    display: block;
-                    height: 2rpx;
-                    background: #000;
-                    width: 66rpx;
-                    left: 0;
-                    bottom: 0;
+            .tag-box {
+                van-tag + van-tag {
+                    margin-left: 20rpx !important;
                 }
-            }
-
-            &-inner {
-                font-size: 30rpx;
-                color: #666;
-                line-height: 38rpx;
-                text-indent: 40rpx;
             }
         }
     }
-
-    .btn-detail-footer {
-        position: fixed;
-        bottom: 0;
-        width: 90%;
-        left: 0;
-        right: 0;
-        margin: 0 auto;
-        padding: 20rpx 0;
-        background: #fff;
-        z-index: 9;
+    .van-cell-text {
+        padding-left: 20rpx;
+    }
+    .van-panel {
+        .van-cell__title {
+            font-size: 32rpx;
+            color: #222;
+            font-weight: 500;
+        }
+        .custom-class {
+            .van-cell__title {
+                font-size: 28rpx;
+                color: #333;
+                font-weight: normal;
+            }
+        }
+    }
+    .service_img {
+        display: block;
+        width: 680rpx;
+        height: 300px;
+        margin: 20rpx auto;
+    }
+    .base-content-block {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        &-item {
+            width: 33.33%;
+            text-align: center;
+            margin-top: 40rpx;
+            .title {
+                font-size: 28rpx;
+                color: #999;
+            }
+            .value {
+                font-size: 30rpx;
+                color: #666;
+                padding-top: 5rpx;
+            }
+        }
+    }
+    .base-car-tag-box {
+        padding: 40rpx;
+        van-tag + van-tag {
+            margin-left: 20rpx !important;
+        }
     }
 }
 </style>

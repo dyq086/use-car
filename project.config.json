@@ -1,12 +1,23 @@
 {
 	"description": "A WePY project",
 	"setting": {
-		"urlCheck": false,
+		"urlCheck": true,
 		"es6": false,
 		"postcss": false,
 		"minified": false,
 		"newFeature": true,
-		"autoAudits": false
+		"coverView": true,
+		"autoAudits": false,
+		"showShadowRootInWxmlPanel": false,
+		"scopeDataCheck": false,
+		"checkInvalidKey": true,
+		"checkSiteMap": true,
+		"uploadWithSourceMap": true,
+		"babelSetting": {
+			"ignore": [],
+			"disablePlugins": [],
+			"outputPath": ""
+		}
 	},
 	"compileType": "miniprogram",
 	"appid": "wx7d2bf067ed821bff",
@@ -50,6 +61,14 @@
 					"id": -1,
 					"name": "pages/admin/index",
 					"pathName": "pages/admin/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/home/detail",
+					"pathName": "pages/home/detail",
+					"query": "id=1583671525069_0.42008442150940417_33578661",
 					"scene": null
 				}
 			]

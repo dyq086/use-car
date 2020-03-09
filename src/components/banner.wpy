@@ -1,9 +1,17 @@
+<!--
+ * @Description: 
+ * @Version: 1.0
+ * @Autor: yongqing
+ * @Date: 2019-05-07 11:20:55
+ * @LastEditors: yongqing
+ * @LastEditTime: 2020-03-08 22:02:37
+ -->
 <template>
     <block>
         <swiper class="swiper-wrap" indicator-dots="{{indicatorDots}}" autoplay="{{autoplay}}" interval="{{interval}}" duration="{{duration}}" style="height:{{height}}rpx" indicator-color="rgba(0,0,0,0.3)" indicator-active-color="#ccc">
             <block wx:for="{{imgUrls}}" wx:key="index">
                 <swiper-item>
-                    <image src="{{item}}" class="slide-image" style="height:{{height}}rpx"  />
+                    <image src="{{item.url}}" class="slide-image" style="height:{{height}}rpx"  />
                 </swiper-item>
             </block>
         </swiper>

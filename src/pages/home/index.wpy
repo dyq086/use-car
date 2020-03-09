@@ -4,12 +4,12 @@
  * @Autor: yongqing
  * @Date: 2020-01-15 14:53:49
  * @LastEditors: yongqing
- * @LastEditTime: 2020-03-08 21:17:32
+ * @LastEditTime: 2020-03-08 22:04:38
  -->
 <template>
     <view class="home-container">
         <view class="home-content-block">
-            <view class="home-content-block-item" wx:for="{{carList}}" wx:key="index">
+            <view class="home-content-block-item" wx:for="{{carList}}" wx:key="index" @tap="goToDetail({{item._id}})">
                 <image src="{{item.banner_img[0].url}}" mode="aspectFill" class="home-content-block-item__img" />
                 <view class="home-content-block-item__info">
                     <view class="car-name">
@@ -20,7 +20,7 @@
                     </view>
                     <view class="car-price">
                         <text class="price">{{ item.price }}万</text>
-                        <text class="shoufu">首付 {{item.down}} 万</text>
+                        <text class="shoufu">首付 {{ item.down }} 万</text>
                     </view>
                 </view>
             </view>
@@ -38,6 +38,13 @@ export default class Home extends wepy.page {
     }
     onLoad() {
         this.getCarList()
+    }
+    methods = {
+        goToDetail(id) {
+            wx.navigateTo({
+                url: `/pages/home/detail?id=${id}`
+            })
+        }
     }
     getCarList() {
         this.$parent.db
