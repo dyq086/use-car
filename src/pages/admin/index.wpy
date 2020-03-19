@@ -4,37 +4,27 @@
  * @Autor: yongqing
  * @Date: 2020-01-15 14:53:49
  * @LastEditors: yongqing
- * @LastEditTime: 2020-03-19 17:14:00
+ * @LastEditTime: 2020-03-19 17:17:46
  -->
 <template>
     <view class="home-container">
-        <van-search
-            value="{{ value }}"
-            placeholder="请输入搜索关键词"
-            use-action-slot
-            bind:change="onChange"
-            bind:search="onSearch"
-            background="#ee0a24"
-        >
+        <van-search value="{{ value }}" placeholder="请输入搜索关键词" use-action-slot bind:change="onChange" bind:search="onSearch">
             <view slot="action" bind:tap="onSearch" class="search-btn">搜索</view>
         </van-search>
-        <CarListItem :dataList.sync="carList" />
+        <CarListItem :dataList.sync="carList" admin="true" @onDel.user="onDel" />
         <Loadmore :nodata.sync="nodata" />
-        <view class="admin-enter" @tap="goToAdmin">
-            <van-icon name="manager-o" size="40rpx" color="#fff" />
+        <view class="admin-enter" @tap="onAdd">
+            <van-icon name="add-o" size="40rpx" color="#fff" />
         </view>
     </view>
 </template>
 <script>
 import wepy from "wepy"
 import Loadmore from "@/components/loadmore"
-import CarListItem from "./components/CarListItem"
+import CarListItem from "../home/components/CarListItem"
 export default class Home extends wepy.page {
     config = {
-        navigationBarTitleText: "粤宝发",
-        navigationBarTextStyle: "white",
-        backgroundTextStyle: "light",
-        navigationBarBackgroundColor: "#ee0a24"
+        navigationBarTitleText: "粤宝发管理后台"
     }
     components = {
         Loadmore,
@@ -45,7 +35,7 @@ export default class Home extends wepy.page {
         nodata: false,
         search_value: ""
     }
-    onLoad() {
+    onShow() {
         this.getCarList()
     }
     methods = {
@@ -56,10 +46,28 @@ export default class Home extends wepy.page {
         onSearch() {
             this.getCarList()
         },
-        goToAdmin() {
+        onAdd() {
             wx.navigateTo({
-                url: `/pages/admin/index`
+                url: `/pages/admin/detail`
             })
+        },
+        onDel(id) {
+            this.$parent.db
+                .collection("cars")
+                .doc(id)
+                .update({
+                    data: {
+                        is_deleted: true
+                    },
+                    success: res => {
+                        wx.showToast({
+                            title: "删除成功",
+                            icon: "none",
+                            duration: 2000
+                        })
+                        this.getCarList()
+                    }
+                })
         }
     }
     getCarList() {
@@ -95,6 +103,5 @@ export default class Home extends wepy.page {
     .search-btn {
         color: #fff;
     }
-    
 }
 </style>

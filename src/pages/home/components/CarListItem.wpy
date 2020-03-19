@@ -4,10 +4,38 @@
  * @Autor: yongqing
  * @Date: 2020-01-15 14:53:49
  * @LastEditors: yongqing
- * @LastEditTime: 2020-03-19 15:13:34
+ * @LastEditTime: 2020-03-19 17:16:05
  -->
 <template>
     <view class="home-content-block">
+        <block wx:if="{{admin}}">
+            <van-swipe-cell
+                wx:for="{{dataList}}"
+                wx:key="index"
+                right-width="{{ 80 }}"
+                data-id="{{item._id}}"
+                async-close
+                bind:close="onClose"
+            >
+                <view class="home-content-block-item" @tap="goToAdminDetail({{item._id}})">
+                    <image src="{{item.banner_img[0].url}}" mode="aspectFill" class="home-content-block-item__img" />
+                    <view class="home-content-block-item__info">
+                        <view class="car-name">
+                            {{ item.car_name }}
+                        </view>
+                        <view class="car-mileage">
+                            {{ item.mileage }}
+                        </view>
+                        <view class="car-price">
+                            <text class="price">{{ item.price }}万</text>
+                            <text class="shoufu">首付 {{ item.down }} 万</text>
+                        </view>
+                    </view>
+                </view>
+                <view slot="right" class="btn-del">删除</view>
+            </van-swipe-cell>
+        </block>
+        <block wx:else>
             <view class="home-content-block-item" wx:for="{{dataList}}" wx:key="index" @tap="goToDetail({{item._id}})">
                 <image src="{{item.banner_img[0].url}}" mode="aspectFill" class="home-content-block-item__img" />
                 <view class="home-content-block-item__info">
@@ -23,60 +51,98 @@
                     </view>
                 </view>
             </view>
-        </view>
+        </block>
+    </view>
 </template>
 <script>
-import wepy from 'wepy'
+import wepy from "wepy"
 export default class carListItem extends wepy.component {
     props = {
-        dataList:{
-            default:{}
+        dataList: {
+            default: {}
+        },
+        admin: {
+            default: false
         }
     }
-   
+
     methods = {
         goToDetail(id) {
             wx.navigateTo({
                 url: `/pages/home/detail?id=${id}`
             })
+        },
+        goToAdminDetail() {
+            url: `/pages/admin/detail?id=${id}`
+        },
+        onClose(event) {
+            const { position, instance } = event.detail
+            const id = event.currentTarget.dataset.id
+            switch (position) {
+                case "cell":
+                    instance.close()
+                    break
+                case "right":
+                    wx.showModal({
+                        title: "提示",
+                        content: "确定删除该数据？",
+                        success: res => {
+                            if (res.confirm) {
+                                this.$emit("onDel", id)
+                            } else if (res.cancel) {
+                                instance.close()
+                            }
+                        }
+                    })
+                    break
+            }
         }
     }
-   
 }
 </script>
 <style lang="less">
-@import '../../../style/var';
-    .home-content-block {
-        padding: 20rpx;
-        &-item {
-            display: flex;
-            padding: 20rpx 0;
-            &__img {
-                width: 280rpx;
-                height: 180rpx;
+@import "../../../style/var";
+.home-content-block {
+    padding: 20rpx;
+    &-item {
+        display: flex;
+        padding: 20rpx 0;
+        &__img {
+            width: 280rpx;
+            height: 180rpx;
+        }
+        &__info {
+            margin-left: 20rpx;
+            .car-name {
+                font-size: 32rpx;
+                color: #222;
             }
-            &__info {
-                margin-left: 20rpx;
-                .car-name {
+            .car-mileage {
+                font-size: 28rpx;
+                color: #999;
+            }
+            .car-price {
+                color: #f40;
+                font-size: 28rpx;
+                .price {
                     font-size: 32rpx;
-                    color: #222;
+                    padding-right: 10rpx;
                 }
-                .car-mileage {
-                    font-size: 28rpx;
-                    color: #999;
-                }
-                .car-price {
-                    color: #f40;
-                    font-size: 28rpx;
-                    .price {
-                        font-size: 32rpx;
-                        padding-right: 10rpx;
-                    }
-                }
-            }
-            &:not(:last-child) {
-                border-bottom: 1rpx solid #efefef;
             }
         }
+        &:not(:last-child) {
+            border-bottom: 1rpx solid #efefef;
+        }
     }
+    .btn-del {
+        width: 80px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ee0a24;
+        font-size: 32rpx;
+        color: #fff;
+    }
+}
 </style>
