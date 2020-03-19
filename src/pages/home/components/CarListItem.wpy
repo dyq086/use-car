@@ -1,0 +1,82 @@
+<!--
+ * @Description: 
+ * @Version: 1.0
+ * @Autor: yongqing
+ * @Date: 2020-01-15 14:53:49
+ * @LastEditors: yongqing
+ * @LastEditTime: 2020-03-19 15:13:34
+ -->
+<template>
+    <view class="home-content-block">
+            <view class="home-content-block-item" wx:for="{{dataList}}" wx:key="index" @tap="goToDetail({{item._id}})">
+                <image src="{{item.banner_img[0].url}}" mode="aspectFill" class="home-content-block-item__img" />
+                <view class="home-content-block-item__info">
+                    <view class="car-name">
+                        {{ item.car_name }}
+                    </view>
+                    <view class="car-mileage">
+                        {{ item.mileage }}
+                    </view>
+                    <view class="car-price">
+                        <text class="price">{{ item.price }}万</text>
+                        <text class="shoufu">首付 {{ item.down }} 万</text>
+                    </view>
+                </view>
+            </view>
+        </view>
+</template>
+<script>
+import wepy from 'wepy'
+export default class carListItem extends wepy.component {
+    props = {
+        dataList:{
+            default:{}
+        }
+    }
+   
+    methods = {
+        goToDetail(id) {
+            wx.navigateTo({
+                url: `/pages/home/detail?id=${id}`
+            })
+        }
+    }
+   
+}
+</script>
+<style lang="less">
+@import '../../../style/var';
+    .home-content-block {
+        padding: 20rpx;
+        &-item {
+            display: flex;
+            padding: 20rpx 0;
+            &__img {
+                width: 280rpx;
+                height: 180rpx;
+            }
+            &__info {
+                margin-left: 20rpx;
+                .car-name {
+                    font-size: 32rpx;
+                    color: #222;
+                }
+                .car-mileage {
+                    font-size: 28rpx;
+                    color: #999;
+                }
+                .car-price {
+                    color: #f40;
+                    font-size: 28rpx;
+                    .price {
+                        font-size: 32rpx;
+                        padding-right: 10rpx;
+                    }
+                }
+            }
+            &:not(:last-child) {
+                border-bottom: 1rpx solid #efefef;
+            }
+        }
+    }
+</style>

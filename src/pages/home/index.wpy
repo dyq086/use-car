@@ -4,45 +4,61 @@
  * @Autor: yongqing
  * @Date: 2020-01-15 14:53:49
  * @LastEditors: yongqing
- * @LastEditTime: 2020-03-08 22:04:38
+ * @LastEditTime: 2020-03-19 16:28:46
  -->
 <template>
     <view class="home-container">
-        <view class="home-content-block">
-            <view class="home-content-block-item" wx:for="{{carList}}" wx:key="index" @tap="goToDetail({{item._id}})">
-                <image src="{{item.banner_img[0].url}}" mode="aspectFill" class="home-content-block-item__img" />
-                <view class="home-content-block-item__info">
-                    <view class="car-name">
-                        {{ item.car_name }}
-                    </view>
-                    <view class="car-mileage">
-                        {{ item.mileage }}
-                    </view>
-                    <view class="car-price">
-                        <text class="price">{{ item.price }}万</text>
-                        <text class="shoufu">首付 {{ item.down }} 万</text>
-                    </view>
-                </view>
-            </view>
+        <van-search
+            value="{{ value }}"
+            placeholder="请输入搜索关键词"
+            use-action-slot
+            bind:change="onChange"
+            bind:search="onSearch"
+            background="#ee0a24"
+        >
+            <view slot="action" bind:tap="onSearch" class="search-btn">搜索</view>
+        </van-search>
+        <CarListItem :dataList.sync="carList" />
+        <Loadmore :nodata.sync="nodata" />
+        <view class="admin-enter" @tap="goToAdmin">
+            <van-icon name="manager-o" size="40rpx" color="#fff" />
         </view>
     </view>
 </template>
 <script>
 import wepy from "wepy"
+import Loadmore from "@/components/loadmore"
+import CarListItem from "./components/CarListItem"
 export default class Home extends wepy.page {
     config = {
-        navigationBarTitleText: "汽车列表"
+        navigationBarTitleText: "粤宝发",
+        navigationBarTextStyle: "white",
+        backgroundTextStyle: "light",
+        navigationBarBackgroundColor: "#ee0a24"
+    }
+    components = {
+        Loadmore,
+        CarListItem
     }
     data = {
-        carList: []
+        carList: [],
+        nodata: false,
+        search_value: ""
     }
     onLoad() {
         this.getCarList()
     }
     methods = {
-        goToDetail(id) {
+        onChange(e) {
+            this.search_value = e.detail
+            this.$apply()
+        },
+        onSearch() {
+            this.getCarList()
+        },
+        goToAdmin() {
             wx.navigateTo({
-                url: `/pages/home/detail?id=${id}`
+                url: `/pages/admin/index`
             })
         }
     }
@@ -50,7 +66,11 @@ export default class Home extends wepy.page {
         this.$parent.db
             .collection("cars")
             .where({
-                is_deleted: false
+                is_deleted: false,
+                car_name: this.$parent.db.RegExp({
+                    regexp: this.search_value,
+                    options: "i"
+                })
             })
             .get()
             .then(res => {
@@ -58,6 +78,11 @@ export default class Home extends wepy.page {
                 this.carList.forEach((item, index) => {
                     item["down"] = parseFloat(item.price * 0.1).toFixed(2)
                 })
+                if (this.carList.length > 0) {
+                    this.nodata = false
+                } else {
+                    this.nodata = true
+                }
                 this.$apply()
             })
     }
@@ -67,38 +92,8 @@ export default class Home extends wepy.page {
 @import "../../style/mixins";
 
 .home-container {
-    .home-content-block {
-        padding: 20rpx;
-        &-item {
-            display: flex;
-            padding: 20rpx 0;
-            &__img {
-                width: 280rpx;
-                height: 180rpx;
-            }
-            &__info {
-                margin-left: 20rpx;
-                .car-name {
-                    font-size: 32rpx;
-                    color: #222;
-                }
-                .car-mileage {
-                    font-size: 28rpx;
-                    color: #999;
-                }
-                .car-price {
-                    color: #f40;
-                    font-size: 28rpx;
-                    .price {
-                        font-size: 32rpx;
-                        padding-right: 10rpx;
-                    }
-                }
-            }
-            &:not(:last-child) {
-                border-bottom: 1rpx solid #efefef;
-            }
-        }
+    .search-btn {
+        color: #fff;
     }
 }
 </style>

@@ -29,9 +29,6 @@ page {
 .btn-footer {
     margin: 20rpx 40rpx;
 }
-
-
-
 </style>
 <script>
 import wepy from "wepy"
@@ -39,7 +36,7 @@ import interfaces from "./interfaces"
 import "wepy-async-function"
 export default class extends wepy.app {
     config = {
-        pages: ["pages/home/index", "pages/home/detail", "pages/admin/index"],
+        pages: ["pages/home/index", "pages/home/detail", "pages/admin/index", "pages/admin/detail"],
         window: {
             navigationBarBackgroundColor: "#fff",
             navigationBarTitleText: "WeChat",
