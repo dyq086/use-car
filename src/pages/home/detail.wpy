@@ -4,7 +4,7 @@
  * @Autor: yongqing
  * @Date: 2019-09-03 23:23:52
  * @LastEditors: yongqing
- * @LastEditTime: 2020-03-20 16:51:50
+ * @LastEditTime: 2020-03-20 17:10:13
  -->
 <template>
     <view class="home-detail-container">
@@ -12,7 +12,7 @@
         <view class="info-content">
             <view class="price-box">
                 <text>{{ info.price }}万</text>
-                <van-tag type="danger" round size="large">金融专享价:{{ info.vip_price }}万</van-tag>
+                <van-tag type="danger" color="#ee0a24" round size="large">金融专享价:{{ info.vip_price }}万</van-tag>
             </view>
             <view class="info-name-box">
                 <view class="name">{{ info.car_name }}</view>
@@ -21,14 +21,14 @@
                 </view>
             </view>
         </view>
-        <van-cell is-link>
+        <van-cell is-link @tap="onClickButton">
             <view slot="title">
                 <van-tag type="danger" color="#f2826a">金融</van-tag>
                 <text class="van-cell-text">首付一成 {{ vip_price }}万开回家</text>
             </view>
         </van-cell>
         <van-panel title="服务保障">
-            <image src="{{info.service_img[0].url}}" class="service_img"  mode="aspectFit"/>
+            <image src="{{info.service_img[0].url}}" class="service_img" mode="aspectFit" />
         </van-panel>
 
         <van-panel title="基本信息">
@@ -43,18 +43,61 @@
             </view>
         </van-panel>
         <van-panel title="复检报告">
-            <van-cell title="事故排查" value="5项" class="custom-class" is-link />
-            <van-cell title="底盘检测" value="5项" class="custom-class" is-link />
-            <van-cell title="轻微碰撞" value="5项" class="custom-class" is-link />
-            <van-cell title="易损耗部件" value="5项" class="custom-class" is-link />
-            <van-cell title="常用功能" value="5项" class="custom-class" is-link />
-            <van-cell title="外观内饰" value="5项" class="custom-class" is-link />
+            <van-cell
+                title="事故排查"
+                value="{{info.detail_accident.length}}项"
+                class="custom-class"
+                is-link
+                @tap="priviewImage('detail_accident')"
+            />
+            <van-cell
+                title="底盘检测"
+                value="{{info.detail_underpan.length}}项"
+                class="custom-class"
+                is-link
+                @tap="priviewImage('detail_underpan')"
+            />
+            <van-cell
+                title="轻微碰撞"
+                value="{{info.detail_slight.length}}项"
+                class="custom-class"
+                is-link
+                @tap="priviewImage('detail_slight')"
+            />
+            <van-cell
+                title="易损耗部件"
+                value="{{info.detail_easyWear.length}}项"
+                class="custom-class"
+                is-link
+                @tap="priviewImage('detail_easyWear')"
+            />
+            <van-cell
+                title="常用功能"
+                value="{{info.detail_function.length}}项"
+                class="custom-class"
+                is-link
+                @tap="priviewImage('detail_function')"
+            />
+            <van-cell
+                title="启动检测"
+                value="{{info.detail_start.length}}项"
+                class="custom-class"
+                is-link
+                @tap="priviewImage('detail_start')"
+            />
+            <van-cell
+                title="外观内饰"
+                value="{{info.detail_surface.length}}项"
+                class="custom-class"
+                is-link
+                @tap="priviewImage('detail_surface')"
+            />
         </van-panel>
         <White height="80" />
         <van-goods-action>
-            <van-goods-action-icon icon="home-o" text="首页" bind:click="onClickIcon" />
-            <van-goods-action-icon icon="chat-o" text="客服" bind:click="onClickIcon" />
-            <van-goods-action-icon icon="share" text="分享" bind:click="onClickIcon" />
+            <van-goods-action-icon url="/pages/home/index" icon="home-o" text="首页" />
+            <van-goods-action-icon open-type="contact" icon="chat-o" text="客服" />
+            <van-goods-action-icon open-type="share" icon="share" text="分享" />
             <van-goods-action-button text="立即预约" bind:click="onClickButton" />
         </van-goods-action>
     </view>
@@ -71,8 +114,8 @@ export default class HomeDetail extends wepy.page {
         White,
         Banner
     }
-    computed ={
-        vip_price(){
+    computed = {
+        vip_price() {
             return parseFloat(this.info.vip_price * 0.1).toFixed(2)
         }
     }
@@ -80,7 +123,23 @@ export default class HomeDetail extends wepy.page {
         info: {},
         imgUrls: []
     }
-    methods = {}
+    methods = {
+        onClickButton() {
+            wx.makePhoneCall({
+                phoneNumber: this.info.phone_num 
+            })
+        },
+        priviewImage(prop) {
+            let urls = []
+            this.info[prop].forEach(item => {
+                urls.push(item.url)
+            })
+            wx.previewImage({
+                current: this.info[prop][0].url, // 当前显示图片的http链接
+                urls // 需要预览的图片http链接列表
+            })
+        }
+    }
 
     onLoad(params) {
         let id = params.id
