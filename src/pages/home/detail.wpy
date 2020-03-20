@@ -4,11 +4,11 @@
  * @Autor: yongqing
  * @Date: 2019-09-03 23:23:52
  * @LastEditors: yongqing
- * @LastEditTime: 2020-03-08 23:02:10
+ * @LastEditTime: 2020-03-20 16:51:50
  -->
 <template>
     <view class="home-detail-container">
-        <Banner :imgUrls.sync="imgUrls" height="420" />
+        <Banner :imgUrls.sync="imgUrls" height="500" />
         <view class="info-content">
             <view class="price-box">
                 <text>{{ info.price }}万</text>
@@ -24,11 +24,11 @@
         <van-cell is-link>
             <view slot="title">
                 <van-tag type="danger" color="#f2826a">金融</van-tag>
-                <text class="van-cell-text">首付一成 {{ info.vip_price * 0.1 }}万开回家</text>
+                <text class="van-cell-text">首付一成 {{ vip_price }}万开回家</text>
             </view>
         </van-cell>
         <van-panel title="服务保障">
-            <image src="{{info.service_img[0].url}}" class="service_img" />
+            <image src="{{info.service_img[0].url}}" class="service_img"  mode="aspectFit"/>
         </van-panel>
 
         <van-panel title="基本信息">
@@ -70,6 +70,11 @@ export default class HomeDetail extends wepy.page {
     components = {
         White,
         Banner
+    }
+    computed ={
+        vip_price(){
+            return parseFloat(this.info.vip_price * 0.1).toFixed(2)
+        }
     }
     data = {
         info: {},
@@ -143,8 +148,8 @@ export default class HomeDetail extends wepy.page {
     }
     .service_img {
         display: block;
-        width: 680rpx;
-        height: 300px;
+        width: 720rpx;
+
         margin: 20rpx auto;
     }
     .base-content-block {

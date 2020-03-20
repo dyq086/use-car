@@ -4,7 +4,7 @@
  * @Autor: yongqing
  * @Date: 2020-01-15 14:53:49
  * @LastEditors: yongqing
- * @LastEditTime: 2020-03-19 17:25:19
+ * @LastEditTime: 2020-03-20 15:16:48
  -->
 <template>
     <view class="admin-container">
@@ -53,7 +53,7 @@
             />
         </van-cell-group>
         <van-field label="标签" value="{{tagNames}}" icon="arrow" disabled @tap="onSelectTag" />
-        <van-field label="车辆标签" value="{{carTags}}" icon="arrow" disabled @tap="onSelectCarTag" />
+        <van-field label="车辆标签" value="{{carTagNames}}" icon="arrow" disabled @tap="onSelectCarTag" />
         <van-panel title="轮播图上传">
             <van-uploader
                 file-list="{{ form.banner_img }}"
@@ -226,7 +226,7 @@ export default class Admin extends wepy.page {
             vip_price: [{ verify: "isNotEmpty", message: "请输入金融价格" }]
         },
         tagNames: "",
-        carTags: "",
+        carTagNames: "",
         tagList: [],
         baseTagsSelected: [],
         carTagList: [],
@@ -234,7 +234,24 @@ export default class Admin extends wepy.page {
         car_id: ""
     }
     mixins = [input, validator]
-
+    watch = {
+        baseTagsSelected(obj) {
+            let arr = []
+            obj.forEach(item => {
+                arr.push(item.name)
+            })
+            this.tagNames = arr.join(",") //显示
+            this.$apply()
+        },
+        baseCarTagsSelected(obj) {
+            let arr = []
+            obj.forEach(item => {
+                arr.push(item.name)
+            })
+            this.carTagNames = arr.join(",") //显示
+            this.$apply()
+        }
+    }
     components = {
         TagSelect: TagSelect,
         CarTagSelect: TagSelect
@@ -276,14 +293,15 @@ export default class Admin extends wepy.page {
             obj.forEach(item => {
                 arr.push(item.name)
             })
-            this.carTags = arr.join(",") //显示
+            this.carTagNames = arr.join(",") //显示
             this.form["car_tags"] = obj //关键字赋值
         }
     }
-    onLoad(params) {
-        this.getTagList()
-        this.getCarTagList()
-        if (params.id) {
+    async onLoad(params) {
+        let id = params.id || ""
+        await this.getTagList()
+        await this.getCarTagList()
+        if (id) {
             this.car_id = id
             this.getCarInfo(id)
         }
@@ -295,6 +313,8 @@ export default class Admin extends wepy.page {
             .get()
             .then(res => {
                 this.form = res.data
+                this.baseTagsSelected = res.data.tags
+                this.baseCarTagsSelected = res.data.car_tags
                 this.$apply()
             })
     }
@@ -362,6 +382,8 @@ export default class Admin extends wepy.page {
             title: "提交中"
         })
         if (this.car_id) {
+            delete this.form["_openid"]
+            delete this.form["_id"]
             this.$parent.db
                 .collection("cars")
                 .doc(this.car_id)

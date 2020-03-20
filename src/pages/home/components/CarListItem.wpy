@@ -4,7 +4,7 @@
  * @Autor: yongqing
  * @Date: 2020-01-15 14:53:49
  * @LastEditors: yongqing
- * @LastEditTime: 2020-03-19 17:16:05
+ * @LastEditTime: 2020-03-20 14:55:27
  -->
 <template>
     <view class="home-content-block">
@@ -72,8 +72,10 @@ export default class carListItem extends wepy.component {
                 url: `/pages/home/detail?id=${id}`
             })
         },
-        goToAdminDetail() {
-            url: `/pages/admin/detail?id=${id}`
+        goToAdminDetail(id) {
+            wx.navigateTo({
+                url: `/pages/admin/detail?id=${id}`
+            })
         },
         onClose(event) {
             const { position, instance } = event.detail

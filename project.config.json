@@ -70,6 +70,13 @@
 					"pathName": "pages/home/detail",
 					"query": "id=1583671525069_0.42008442150940417_33578661",
 					"scene": null
+				},
+				{
+					"id": 3,
+					"name": "pages/admin/detail",
+					"pathName": "pages/admin/detail",
+					"query": "id=0dee15725e7338a700050ad74ab8e85c",
+					"scene": null
 				}
 			]
 		}

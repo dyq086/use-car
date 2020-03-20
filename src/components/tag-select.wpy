@@ -19,9 +19,9 @@
                         </view>
                     </view>
                 </scroll-view>
-            </view>
-            <view class="btn-footer">
-                <van-button type="primary" block round @tap="onConfirm">确定</van-button>
+                <view class="btn-footer">
+                    <van-button type="primary" block round @tap="onConfirm">确定</van-button>
+                </view>
             </view>
         </van-popup>
         <van-dialog
@@ -159,6 +159,7 @@ export default class zanTag extends wepy.component {
     }
     watch = {
         baseTagsSelected(objValue) {
+            console.log("=========xxx")
             this.tagList.forEach(citem => {
                 objValue.forEach(item => {
                     if (item._id == citem._id) {
