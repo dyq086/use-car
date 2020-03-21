@@ -4,7 +4,7 @@
  * @Autor: yongqing
  * @Date: 2020-01-15 14:53:49
  * @LastEditors: yongqing
- * @LastEditTime: 2020-03-20 15:16:48
+ * @LastEditTime: 2020-03-21 15:21:21
  -->
 <template>
     <view class="admin-container">
@@ -50,6 +50,22 @@
                 data-prop="phone_num"
                 @input="formInput"
                 placeholder="请输入联系销售"
+            />
+            <van-field
+                label="门店名称"
+                clearable
+                value="{{ form.shop_name }}"
+                data-prop="shop_name"
+                @input="formInput"
+                placeholder="请输入门店名称"
+            />
+            <van-field
+                label="门店地址"
+                clearable
+                value="{{ form.shop_address }}"
+                data-prop="shop_address"
+                @input="formInput"
+                placeholder="请输入门店地址"
             />
         </van-cell-group>
         <van-field label="标签" value="{{tagNames}}" icon="arrow" disabled @tap="onSelectTag" />
@@ -100,7 +116,7 @@
                 </view>
             </view>
         </van-panel>
-        <van-panel title="复检报告">
+        <van-panel title="车况检测">
             <view class="form-content-block">
                 <view class="form-item">
                     <view class="form-item__title">事故排查</view>
@@ -218,12 +234,16 @@ export default class Admin extends wepy.page {
             detail_surface: [],
             is_deleted: false,
             create_time: moment().format("YYYY-MM-DD MM:DD:SS"),
-            update_time: moment().format("YYYY-MM-DD MM:DD:SS")
+            update_time: moment().format("YYYY-MM-DD MM:DD:SS"),
+            shop_name: "",
+            shop_address: ""
         },
         rules: {
             car_name: [{ verify: "isNotEmpty", message: "请输入产品名称" }],
             price: [{ verify: "isNotEmpty", message: "请输入产品价格" }],
-            vip_price: [{ verify: "isNotEmpty", message: "请输入金融价格" }]
+            vip_price: [{ verify: "isNotEmpty", message: "请输入金融价格" }],
+            shop_name: [{ verify: "isNotEmpty", message: "请输入店铺名称" }],
+            shop_address: [{ verify: "isNotEmpty", message: "请输入店铺地址" }]
         },
         tagNames: "",
         carTagNames: "",
@@ -303,13 +323,12 @@ export default class Admin extends wepy.page {
         await this.getCarTagList()
         if (id) {
             this.car_id = id
-            this.getCarInfo(id)
         }
     }
-    getCarInfo(id) {
+    getCarInfo() {
         this.$parent.db
             .collection("cars")
-            .doc(id)
+            .doc(this.car_id)
             .get()
             .then(res => {
                 this.form = res.data
@@ -328,6 +347,7 @@ export default class Admin extends wepy.page {
             .then(res => {
                 this.tagList = res.data
                 this.$apply()
+                this.getCarInfo()
             })
     }
     getCarTagList() {
@@ -439,7 +459,9 @@ export default class Admin extends wepy.page {
             detail_function: [],
             detail_start: [],
             detail_surface: [],
-            is_deleted: false
+            is_deleted: false,
+            shop_name: "",
+            shop_address: ""
         }
         this.$apply()
         wx.navigateBack({

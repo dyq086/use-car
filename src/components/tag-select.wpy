@@ -159,7 +159,7 @@ export default class zanTag extends wepy.component {
     }
     watch = {
         baseTagsSelected(objValue) {
-            console.log("=========xxx")
+            console.log(this.tagList,objValue)
             this.tagList.forEach(citem => {
                 objValue.forEach(item => {
                     if (item._id == citem._id) {

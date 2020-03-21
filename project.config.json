@@ -1,7 +1,7 @@
 {
 	"description": "A WePY project",
 	"setting": {
-		"urlCheck": true,
+		"urlCheck": false,
 		"es6": false,
 		"postcss": false,
 		"minified": false,
@@ -65,17 +65,17 @@
 					"scene": null
 				},
 				{
-					"id": -1,
+					"id": 2,
 					"name": "pages/home/detail",
 					"pathName": "pages/home/detail",
-					"query": "id=1583671525069_0.42008442150940417_33578661",
+					"query": "id=9a393e025e7481e9000ba4ca78dabfca",
 					"scene": null
 				},
 				{
 					"id": 3,
 					"name": "pages/admin/detail",
 					"pathName": "pages/admin/detail",
-					"query": "id=0dee15725e7338a700050ad74ab8e85c",
+					"query": "id=9a393e025e7481e9000ba4ca78dabfca",
 					"scene": null
 				}
 			]

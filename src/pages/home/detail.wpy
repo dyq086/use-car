@@ -4,7 +4,7 @@
  * @Autor: yongqing
  * @Date: 2019-09-03 23:23:52
  * @LastEditors: yongqing
- * @LastEditTime: 2020-03-20 17:10:13
+ * @LastEditTime: 2020-03-21 15:12:51
  -->
 <template>
     <view class="home-detail-container">
@@ -42,63 +42,91 @@
                 <van-tag wx:for="{{info.car_tags}}" color="#b1b1b1" size="medium" wx:key="index">{{ item.name }}</van-tag>
             </view>
         </van-panel>
-        <van-panel title="复检报告">
-            <van-cell
-                title="事故排查"
-                value="{{info.detail_accident.length}}项"
-                class="custom-class"
-                is-link
-                @tap="priviewImage('detail_accident')"
-            />
-            <van-cell
-                title="底盘检测"
-                value="{{info.detail_underpan.length}}项"
-                class="custom-class"
-                is-link
-                @tap="priviewImage('detail_underpan')"
-            />
-            <van-cell
-                title="轻微碰撞"
-                value="{{info.detail_slight.length}}项"
-                class="custom-class"
-                is-link
-                @tap="priviewImage('detail_slight')"
-            />
-            <van-cell
-                title="易损耗部件"
-                value="{{info.detail_easyWear.length}}项"
-                class="custom-class"
-                is-link
-                @tap="priviewImage('detail_easyWear')"
-            />
-            <van-cell
-                title="常用功能"
-                value="{{info.detail_function.length}}项"
-                class="custom-class"
-                is-link
-                @tap="priviewImage('detail_function')"
-            />
-            <van-cell
-                title="启动检测"
-                value="{{info.detail_start.length}}项"
-                class="custom-class"
-                is-link
-                @tap="priviewImage('detail_start')"
-            />
-            <van-cell
-                title="外观内饰"
-                value="{{info.detail_surface.length}}项"
-                class="custom-class"
-                is-link
-                @tap="priviewImage('detail_surface')"
-            />
+        <van-tabs>
+            <van-tab title="车况检测">
+                <van-panel>
+                    <van-cell
+                        title="事故排查"
+                        value="{{info.detail_accident.length}}项"
+                        class="custom-class"
+                        is-link
+                        @tap="priviewImage('detail_accident')"
+                    />
+                    <van-cell
+                        title="底盘检测"
+                        value="{{info.detail_underpan.length}}项"
+                        class="custom-class"
+                        is-link
+                        @tap="priviewImage('detail_underpan')"
+                    />
+                    <van-cell
+                        title="轻微碰撞"
+                        value="{{info.detail_slight.length}}项"
+                        class="custom-class"
+                        is-link
+                        @tap="priviewImage('detail_slight')"
+                    />
+                    <van-cell
+                        title="易损耗部件"
+                        value="{{info.detail_easyWear.length}}项"
+                        class="custom-class"
+                        is-link
+                        @tap="priviewImage('detail_easyWear')"
+                    />
+                    <van-cell
+                        title="常用功能"
+                        value="{{info.detail_function.length}}项"
+                        class="custom-class"
+                        is-link
+                        @tap="priviewImage('detail_function')"
+                    />
+                    <van-cell
+                        title="启动检测"
+                        value="{{info.detail_start.length}}项"
+                        class="custom-class"
+                        is-link
+                        @tap="priviewImage('detail_start')"
+                    />
+                    <van-cell
+                        title="外观内饰"
+                        value="{{info.detail_surface.length}}项"
+                        class="custom-class"
+                        is-link
+                        @tap="priviewImage('detail_surface')"
+                    />
+                </van-panel>
+            </van-tab>
+            <van-tab title="车辆实拍">
+                <van-panel>
+                    <view class="car-image-box">
+                        <image class="car-image" mode="aspectFill" src="{{item.url}}" wx:for="{{imgUrls}}" wx:key="index" />
+                    </view>
+                </van-panel>
+            </van-tab>
+        </van-tabs>
+
+        <van-panel title="门店地址" use-footer-slot>
+            <view class="map-box">
+                <map
+                    id="map"
+                    scale="13"
+                    @tap="openLocation"
+                    longitude="{{longitude}}"
+                    latitude="{{latitude}}"
+                    markers="{{markers}}"
+                    show-scale
+                    show-location
+                    style="width: 100%; height: 400rpx;"
+                ></map>
+            </view>
+            <van-cell title="{{info.shop_name}}" label="{{info.shop_address}}" @tap="openLocation" is-link icon="location-o" />
         </van-panel>
         <White height="80" />
         <van-goods-action>
             <van-goods-action-icon url="/pages/home/index" icon="home-o" text="首页" />
             <van-goods-action-icon open-type="contact" icon="chat-o" text="客服" />
             <van-goods-action-icon open-type="share" icon="share" text="分享" />
-            <van-goods-action-button text="立即预约" bind:click="onClickButton" />
+            <van-goods-action-button text="立即预约" bind:getuserinfo="onClickButton" open-type="getUserInfo" />
         </van-goods-action>
     </view>
 </template>
@@ -106,6 +134,7 @@
 import wepy from "wepy"
 import White from "@/components/white"
 import Banner from "@/components/banner"
+const QQMapWX = require("@/utils/qqmap-wx-jssdk.min.js")
 export default class HomeDetail extends wepy.page {
     config = {
         navigationBarTitleText: ""
@@ -121,12 +150,30 @@ export default class HomeDetail extends wepy.page {
     }
     data = {
         info: {},
-        imgUrls: []
+        imgUrls: [],
+        user_id: "",
+        latitude: "",
+        longitude: "",
+        qqmapsdk: null,
+        markers: []
     }
     methods = {
-        onClickButton() {
+        onClickButton(e) {
+            if (!this.user_id) {
+                let user_info = e.detail.userInfo
+                this.$parent.db
+                    .collection("user")
+                    .add({
+                        data: user_info
+                    })
+                    .then(res => {
+                        this.user_id = res._id
+                        this.$apply()
+                    })
+            }
+
             wx.makePhoneCall({
-                phoneNumber: this.info.phone_num 
+                phoneNumber: this.info.phone_num
             })
         },
         priviewImage(prop) {
@@ -138,12 +185,78 @@ export default class HomeDetail extends wepy.page {
                 current: this.info[prop][0].url, // 当前显示图片的http链接
                 urls // 需要预览的图片http链接列表
             })
+        },
+        openLocation() {
+            wepy.openLocation({
+                latitude: this.latitude,
+                longitude: this.longitude,
+                name: this.info.shop_name,
+                address: this.info.shop_address
+            })
         }
     }
 
     onLoad(params) {
         let id = params.id
         this.getCarInfo(id)
+        this.getUserInfo()
+        this.qqmapsdk = new QQMapWX({
+            key: "OVSBZ-EUILW-YK7RI-OWABR-YE525-O3BQ5"
+        })
+    }
+    getAddressLoaction(address) {
+        this.qqmapsdk.geocoder({
+            address,
+            success: res => {
+                console.log(res)
+                let { location } = res.result
+                this.setLocation(location)
+            },
+            fail: res => {
+                console.log(res)
+            }
+        })
+    }
+    setLocation({ lat, lng }) {
+        this.longitude = lng
+        this.latitude = lat
+        this.markers = [
+            {
+                iconPath: "/icons/map-marker.png",
+                id: 1,
+                latitude: lat,
+                longitude: lng,
+                width: 25,
+                height: 25,
+                label: {
+                    content: this.info.shop_name,
+                    bgColor: "#fff",
+                    borderColor: "#a81d22",
+                    padding: 4,
+                    borderRadius: 10
+                }
+            }
+        ]
+        this.$apply()
+    }
+
+    async getUserInfo() {
+        let json = await wx.cloud.callFunction({
+            name: "getWXContext"
+        })
+
+        this.$parent.db
+            .collection("user")
+            .where({
+                _openid: json.result.OPENID
+            })
+            .get()
+            .then(res => {
+                if (res.data.length > 0) {
+                    this.user_id = res.data[0]._id
+                    this.$apply()
+                }
+            })
     }
     getCarInfo(id) {
         this.$parent.db
@@ -153,6 +266,7 @@ export default class HomeDetail extends wepy.page {
             .then(res => {
                 this.info = res.data
                 this.imgUrls = res.data.banner_img
+                this.getAddressLoaction(res.data.shop_name)
                 this.$apply()
             })
     }
@@ -162,6 +276,15 @@ export default class HomeDetail extends wepy.page {
 @import "../../style/var";
 
 .home-detail-container {
+    .map-box {
+        padding: 20rpx 40rpx;
+    }
+    .car-image-box{
+        padding: 20rpx;
+        .car-image{
+            width: 100%;
+        }
+    }
     .info-content {
         padding: 20rpx 40rpx;
         .price-box {
@@ -178,8 +301,8 @@ export default class HomeDetail extends wepy.page {
         .info-name-box {
             margin-top: 20rpx;
             .name {
-                font-size: 30rpx;
-                color: #333;
+                font-size: 32rpx;
+                color: #222;
             }
             .tag-box {
                 van-tag + van-tag {

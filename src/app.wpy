@@ -30,18 +30,18 @@ page {
     margin: 20rpx 40rpx;
 }
 .admin-enter {
-        width: 80rpx;
-        height: 80rpx;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #ee0a24;
-        border-radius: 100%;
-        position: fixed;
-        right: 40rpx;
-        bottom: 40rpx;
-        box-shadow: 0 5rpx 6rpx 0rpx rgba(0, 0, 0, 0.2);
-    }
+    width: 80rpx;
+    height: 80rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ee0a24;
+    border-radius: 100%;
+    position: fixed;
+    right: 40rpx;
+    bottom: 40rpx;
+    box-shadow: 0 5rpx 6rpx 0rpx rgba(0, 0, 0, 0.2);
+}
 </style>
 <script>
 import wepy from "wepy"
@@ -57,6 +57,11 @@ export default class extends wepy.app {
             backgroundTextStyle: "dark",
             backgroundColor: "#f9f9f9",
             enablePullDownRefresh: false
+        },
+        permission: {
+            "scope.userLocation": {
+                desc: "你的位置信息将用于小程序位置接口的效果展示" // 高速公路行驶持续后台定位
+            }
         },
         // tabBar: {
         //     color: '#8e8e8e',
