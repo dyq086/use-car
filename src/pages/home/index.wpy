@@ -4,7 +4,7 @@
  * @Autor: yongqing
  * @Date: 2020-01-15 14:53:49
  * @LastEditors: yongqing
- * @LastEditTime: 2020-03-19 17:14:00
+ * @LastEditTime: 2020-03-21 15:25:08
  -->
 <template>
     <view class="home-container">
@@ -20,9 +20,9 @@
         </van-search>
         <CarListItem :dataList.sync="carList" />
         <Loadmore :nodata.sync="nodata" />
-        <view class="admin-enter" @tap="goToAdmin">
+        <!-- <view class="admin-enter" @tap="goToAdmin">
             <van-icon name="manager-o" size="40rpx" color="#fff" />
-        </view>
+        </view> -->
     </view>
 </template>
 <script>
