@@ -4,7 +4,7 @@
  * @Autor: yongqing
  * @Date: 2020-01-15 14:53:49
  * @LastEditors: yongqing
- * @LastEditTime: 2020-03-26 17:04:51
+ * @LastEditTime: 2020-03-26 18:31:58
  -->
 <template>
     <view class="admin-container">
@@ -80,7 +80,7 @@
         <van-field label="标签" value="{{tagNames}}" icon="arrow" disabled @tap="onSelectTag" />
         <van-field label="车辆标签" value="{{carTagNames}}" icon="arrow" disabled @tap="onSelectCarTag" />
         <van-panel title="轮播图上传">
-            <van-uploader file-list="{{ form.banner_img }}" name="banner_img" bind:after-read="upLoadImage" bind:delete="deleteImage" />
+            <van-uploader file-list="{{ form.banner_img }}" name="banner_img"  preview-size="{{62}}" bind:after-read="upLoadImage" bind:delete="deleteImage" />
         </van-panel>
         <van-panel title="服务保障图">
             <van-uploader
@@ -147,60 +147,7 @@
                 <view class="add-base" @tap="onAddVehicleInfo">
                     <van-icon name="add-o" color="#999" size="60rpx" />
                 </view>
-                <!-- <view class="form-item">
-                    <view class="form-item__title">底盘检测</view>
-                    <van-uploader
-                        file-list="{{ form.detail_underpan }}"
-                        name="detail_underpan"
-                        bind:after-read="upLoadImage"
-                        bind:delete="deleteImage"
-                    />
-                </view>
-                <view class="form-item">
-                    <view class="form-item__title">轻微碰撞</view>
-                    <van-uploader
-                        file-list="{{ form.detail_slight }}"
-                        name="detail_slight"
-                        bind:after-read="upLoadImage"
-                        bind:delete="deleteImage"
-                    />
-                </view>
-                <view class="form-item">
-                    <view class="form-item__title">易损耗部件</view>
-                    <van-uploader
-                        file-list="{{ form.detail_easyWear }}"
-                        name="detail_easyWear"
-                        bind:after-read="upLoadImage"
-                        bind:delete="deleteImage"
-                    />
-                </view>
-                <view class="form-item">
-                    <view class="form-item__title">常用功能</view>
-                    <van-uploader
-                        file-list="{{ form.detail_function }}"
-                        name="detail_function"
-                        bind:after-read="upLoadImage"
-                        bind:delete="deleteImage"
-                    />
-                </view>
-                <view class="form-item">
-                    <view class="form-item__title">启动检测</view>
-                    <van-uploader
-                        file-list="{{ form.detail_start }}"
-                        name="detail_start"
-                        bind:after-read="upLoadImage"
-                        bind:delete="deleteImage"
-                    />
-                </view>
-                <view class="form-item">
-                    <view class="form-item__title">外观内饰</view>
-                    <van-uploader
-                        file-list="{{ form.detail_surface }}"
-                        name="detail_surface"
-                        bind:after-read="upLoadImage"
-                        bind:delete="deleteImage"
-                    />
-                </view> -->
+              
             </view>
         </van-panel>
         <view class="btn-footer">

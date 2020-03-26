@@ -4,7 +4,7 @@
  * @Autor: yongqing
  * @Date: 2019-09-03 23:23:52
  * @LastEditors: yongqing
- * @LastEditTime: 2020-03-26 17:57:09
+ * @LastEditTime: 2020-03-26 18:39:16
  -->
 <template>
     <view class="home-detail-container">
@@ -30,11 +30,6 @@
         <van-panel title="服务保障">
             <image src="{{info.service_img[0].url}}" class="service_img" mode="aspectFit" />
         </van-panel>
-        <van-panel>
-            <view class="base-car-tag-box">
-                <van-tag class="base-car-tag-item" wx:for="{{info.car_tags}}" plain size="large" wx:key="index">{{ item.name }}</van-tag>
-            </view>
-        </van-panel>
         <van-panel title="基本信息">
             <view class="base-content-block">
                 <view class="base-content-block-item" wx:for="{{info.base}}" wx:key="index">
@@ -42,74 +37,42 @@
                     <view class="value">{{ item.value }}</view>
                 </view>
             </view>
-        </van-panel>
-        <van-panel title="车况检测">
-            <van-cell
-                wx:for="{{info.vehicle_info}}"
-                wx:key="index"
-                title="{{item.name}}"
-                value="{{item.img_urls.length}}项"
-                class="custom-class"
-                is-link
-                @tap="priviewImage('vehicle_info-img_urls-{{index}}')"
-            />
-            <!-- <van-cell
-                        title="底盘检测"
-                        value="{{info.detail_underpan.length}}项"
-                        class="custom-class"
-                        is-link
-                        @tap="priviewImage('detail_underpan')"
-                    />
-                    <van-cell
-                        title="轻微碰撞"
-                        value="{{info.detail_slight.length}}项"
-                        class="custom-class"
-                        is-link
-                        @tap="priviewImage('detail_slight')"
-                    />
-                    <van-cell
-                        title="易损耗部件"
-                        value="{{info.detail_easyWear.length}}项"
-                        class="custom-class"
-                        is-link
-                        @tap="priviewImage('detail_easyWear')"
-                    />
-                    <van-cell
-                        title="常用功能"
-                        value="{{info.detail_function.length}}项"
-                        class="custom-class"
-                        is-link
-                        @tap="priviewImage('detail_function')"
-                    />
-                    <van-cell
-                        title="启动检测"
-                        value="{{info.detail_start.length}}项"
-                        class="custom-class"
-                        is-link
-                        @tap="priviewImage('detail_start')"
-                    />
-                    <van-cell
-                        title="外观内饰"
-                        value="{{info.detail_surface.length}}项"
-                        class="custom-class"
-                        is-link
-                        @tap="priviewImage('detail_surface')"
-                    /> -->
-        </van-panel>
-        <van-panel title="车辆实拍">
-            <view class="car-image-box">
-                <image 
-                    wx:for="{{imgUrls}}"
-                    wx:key="index" 
-                    src="{{item.url}}" 
-                    class="car-image"
-                    mode="aspectFill"
-                    data-index="{{index}}" 
-                    @tap="priviewBigImage({{index}})"
-          
-                   />
+            <view class="base-car-tag-box">
+                <van-tag class="base-car-tag-item" wx:for="{{info.car_tags}}" color="#ee0a24" plain size="large" wx:key="index">{{ item.name }}</van-tag>
             </view>
         </van-panel>
+
+        <van-tabs>
+            <van-tab title="车况检测">
+                <van-panel>
+                    <van-cell
+                        wx:for="{{info.vehicle_info}}"
+                        wx:key="index"
+                        title="{{item.name}}"
+                        value="{{item.img_urls.length}}项"
+                        class="custom-class"
+                        is-link
+                        @tap="priviewImage('vehicle_info-img_urls-{{index}}')"
+                    />
+                </van-panel>
+            </van-tab>
+            <van-tab title="车辆实拍">
+                <van-panel>
+                    <view class="car-image-box">
+                        <image
+                            wx:for="{{imgUrls}}"
+                            wx:key="index"
+                            src="{{item.url}}"
+                            class="car-image"
+                            mode="aspectFill"
+                            data-index="{{index}}"
+                            @tap="priviewBigImage({{index}})"
+                        />
+                    </view>
+                </van-panel>
+            </van-tab>
+        </van-tabs>
+
         <van-panel title="门店地址" use-footer-slot>
             <view class="map-box">
                 <map
@@ -255,14 +218,14 @@ export default class HomeDetail extends wepy.page {
                 urls.push(item.url)
             })
             wx.previewImage({
-                current: img_array[index].url, // 当前显示图片的http链接
+                current: img_array[0].url, // 当前显示图片的http链接
                 urls // 需要预览的图片http链接列表
             })
         },
         //预览大图
-           priviewBigImage(index) {
+        priviewBigImage(index) {
             let urls = []
-            let img_array = this.info.banner_img;
+            let img_array = this.info.banner_img
             img_array.forEach(item => {
                 urls.push(item.url)
             })
