@@ -4,7 +4,7 @@
  * @Autor: yongqing
  * @Date: 2019-09-03 23:23:52
  * @LastEditors: yongqing
- * @LastEditTime: 2020-03-21 15:12:51
+ * @LastEditTime: 2020-03-26 17:57:09
  -->
 <template>
     <view class="home-detail-container">
@@ -30,7 +30,11 @@
         <van-panel title="服务保障">
             <image src="{{info.service_img[0].url}}" class="service_img" mode="aspectFit" />
         </van-panel>
-
+        <van-panel>
+            <view class="base-car-tag-box">
+                <van-tag class="base-car-tag-item" wx:for="{{info.car_tags}}" plain size="large" wx:key="index">{{ item.name }}</van-tag>
+            </view>
+        </van-panel>
         <van-panel title="基本信息">
             <view class="base-content-block">
                 <view class="base-content-block-item" wx:for="{{info.base}}" wx:key="index">
@@ -38,21 +42,18 @@
                     <view class="value">{{ item.value }}</view>
                 </view>
             </view>
-            <view class="base-car-tag-box">
-                <van-tag wx:for="{{info.car_tags}}" color="#b1b1b1" size="medium" wx:key="index">{{ item.name }}</van-tag>
-            </view>
         </van-panel>
-        <van-tabs>
-            <van-tab title="车况检测">
-                <van-panel>
-                    <van-cell
-                        title="事故排查"
-                        value="{{info.detail_accident.length}}项"
-                        class="custom-class"
-                        is-link
-                        @tap="priviewImage('detail_accident')"
-                    />
-                    <van-cell
+        <van-panel title="车况检测">
+            <van-cell
+                wx:for="{{info.vehicle_info}}"
+                wx:key="index"
+                title="{{item.name}}"
+                value="{{item.img_urls.length}}项"
+                class="custom-class"
+                is-link
+                @tap="priviewImage('vehicle_info-img_urls-{{index}}')"
+            />
+            <!-- <van-cell
                         title="底盘检测"
                         value="{{info.detail_underpan.length}}项"
                         class="custom-class"
@@ -93,26 +94,30 @@
                         class="custom-class"
                         is-link
                         @tap="priviewImage('detail_surface')"
-                    />
-                </van-panel>
-            </van-tab>
-            <van-tab title="车辆实拍">
-                <van-panel>
-                    <view class="car-image-box">
-                        <image class="car-image" mode="aspectFill" src="{{item.url}}" wx:for="{{imgUrls}}" wx:key="index" />
-                    </view>
-                </van-panel>
-            </van-tab>
-        </van-tabs>
-
+                    /> -->
+        </van-panel>
+        <van-panel title="车辆实拍">
+            <view class="car-image-box">
+                <image 
+                    wx:for="{{imgUrls}}"
+                    wx:key="index" 
+                    src="{{item.url}}" 
+                    class="car-image"
+                    mode="aspectFill"
+                    data-index="{{index}}" 
+                    @tap="priviewBigImage({{index}})"
+          
+                   />
+            </view>
+        </van-panel>
         <van-panel title="门店地址" use-footer-slot>
             <view class="map-box">
                 <map
                     id="map"
                     scale="13"
                     @tap="openLocation"
-                    longitude="{{longitude}}"
-                    latitude="{{latitude}}"
+                    longitude="{{info.longitude}}"
+                    latitude="{{info.latitude}}"
                     markers="{{markers}}"
                     show-scale
                     show-location
@@ -124,17 +129,22 @@
         <White height="80" />
         <van-goods-action>
             <van-goods-action-icon url="/pages/home/index" icon="home-o" text="首页" />
-            <van-goods-action-icon open-type="contact" icon="chat-o" text="客服" />
+            <van-goods-action-icon @tap="createQr" icon="qr" text="二维码" />
             <van-goods-action-icon open-type="share" icon="share" text="分享" />
             <van-goods-action-button text="立即预约" bind:getuserinfo="onClickButton" open-type="getUserInfo" />
         </van-goods-action>
+        <van-popup show="{{ show }}" position="center" bind:close="onClose">
+            <image src="{{qr_img}}" class="qr_img" />
+            <view class="btn-footer">
+                <van-button type="primary" block @tap="onSave">保存图片</van-button>
+            </view>
+        </van-popup>
     </view>
 </template>
 <script>
 import wepy from "wepy"
 import White from "@/components/white"
 import Banner from "@/components/banner"
-const QQMapWX = require("@/utils/qqmap-wx-jssdk.min.js")
 export default class HomeDetail extends wepy.page {
     config = {
         navigationBarTitleText: ""
@@ -149,15 +159,68 @@ export default class HomeDetail extends wepy.page {
         }
     }
     data = {
+        car_id: "",
         info: {},
         imgUrls: [],
         user_id: "",
-        latitude: "",
-        longitude: "",
         qqmapsdk: null,
-        markers: []
+        markers: [],
+        qr_img: "",
+        show: false
     }
     methods = {
+        onSave() {
+            let file_path = this.qr_img
+            wx.downloadFile({
+                url: file_path,
+                success: res => {
+                    wx.saveImageToPhotosAlbum({
+                        filePath: res.tempFilePath,
+                        success: res => {
+                            wx.showToast({
+                                title: "已成功保存到本地相册!",
+                                icon: "none"
+                            })
+                            this.show = false
+                            this.$apply()
+                        }
+                    })
+                },
+                fail(res) {
+                    console.log(res)
+                }
+            })
+        },
+        onClose() {
+            this.show = false
+            this.$apply()
+        },
+        createQr() {
+            wx.showLoading({
+                title: "正在生成图片"
+            })
+            wx.cloud.callFunction({
+                name: "getWXQrcode",
+                data: {
+                    path: "pages/home/detail?id=" + this.car_id,
+                    width: 550
+                },
+                success: res => {
+                    wx.hideLoading()
+                    console.log(res)
+                    this.qr_img = res.result[0].tempFileURL
+                    this.show = true
+                    this.$apply()
+                },
+                fail: error => {
+                    console.log(JSON.stringify(error))
+                    wx.showToast({
+                        title: "生成失败!"
+                    })
+                    wx.hideLoading()
+                }
+            })
+        },
         onClickButton(e) {
             if (!this.user_id) {
                 let user_info = e.detail.userInfo
@@ -178,18 +241,40 @@ export default class HomeDetail extends wepy.page {
         },
         priviewImage(prop) {
             let urls = []
-            this.info[prop].forEach(item => {
+            let img_array = []
+            if (prop.indexOf("-") > -1) {
+                let key = prop.split("-")
+                let prop1 = key[0]
+                let prop2 = key[1]
+                let index = key[2]
+                img_array = this.info[prop1][index][prop2]
+            } else {
+                img_array = this.info[prop]
+            }
+            img_array.forEach(item => {
                 urls.push(item.url)
             })
             wx.previewImage({
-                current: this.info[prop][0].url, // 当前显示图片的http链接
+                current: img_array[index].url, // 当前显示图片的http链接
+                urls // 需要预览的图片http链接列表
+            })
+        },
+        //预览大图
+           priviewBigImage(index) {
+            let urls = []
+            let img_array = this.info.banner_img;
+            img_array.forEach(item => {
+                urls.push(item.url)
+            })
+            wx.previewImage({
+                current: img_array[index].url, // 当前显示图片的http链接
                 urls // 需要预览的图片http链接列表
             })
         },
         openLocation() {
             wepy.openLocation({
-                latitude: this.latitude,
-                longitude: this.longitude,
+                latitude: this.info.latitude,
+                longitude: this.info.longitude,
                 name: this.info.shop_name,
                 address: this.info.shop_address
             })
@@ -198,34 +283,18 @@ export default class HomeDetail extends wepy.page {
 
     onLoad(params) {
         let id = params.id
+        this.car_id = id
         this.getCarInfo(id)
         this.getUserInfo()
-        this.qqmapsdk = new QQMapWX({
-            key: "OVSBZ-EUILW-YK7RI-OWABR-YE525-O3BQ5"
-        })
     }
-    getAddressLoaction(address) {
-        this.qqmapsdk.geocoder({
-            address,
-            success: res => {
-                console.log(res)
-                let { location } = res.result
-                this.setLocation(location)
-            },
-            fail: res => {
-                console.log(res)
-            }
-        })
-    }
-    setLocation({ lat, lng }) {
-        this.longitude = lng
-        this.latitude = lat
+
+    setLocation() {
         this.markers = [
             {
                 iconPath: "/icons/map-marker.png",
                 id: 1,
-                latitude: lat,
-                longitude: lng,
+                latitude: this.info.latitude,
+                longitude: this.info.longitude,
                 width: 25,
                 height: 25,
                 label: {
@@ -266,7 +335,7 @@ export default class HomeDetail extends wepy.page {
             .then(res => {
                 this.info = res.data
                 this.imgUrls = res.data.banner_img
-                this.getAddressLoaction(res.data.shop_name)
+                this.setLocation()
                 this.$apply()
             })
     }
@@ -279,9 +348,13 @@ export default class HomeDetail extends wepy.page {
     .map-box {
         padding: 20rpx 40rpx;
     }
-    .car-image-box{
+    .qr_img {
+        width: 550rpx;
+        height: 550rpx;
+    }
+    .car-image-box {
         padding: 20rpx;
-        .car-image{
+        .car-image {
             width: 100%;
         }
     }
@@ -311,6 +384,9 @@ export default class HomeDetail extends wepy.page {
             }
         }
     }
+    .van-goods-action {
+        z-index: 99;
+    }
     .van-cell-text {
         padding-left: 20rpx;
     }
@@ -338,6 +414,7 @@ export default class HomeDetail extends wepy.page {
         display: flex;
         align-items: center;
         flex-wrap: wrap;
+        padding: 20rpx;
         &-item {
             width: 33.33%;
             text-align: center;
@@ -354,9 +431,12 @@ export default class HomeDetail extends wepy.page {
         }
     }
     .base-car-tag-box {
-        padding: 40rpx;
-        van-tag + van-tag {
-            margin-left: 20rpx !important;
+        padding: 20rpx 40rpx;
+        line-height: 60rpx;
+        margin-left: -10rpx;
+        .base-car-tag-item {
+            margin-top: 20rpx;
+            margin-left: 10rpx;
         }
     }
 }

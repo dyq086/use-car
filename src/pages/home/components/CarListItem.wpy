@@ -4,7 +4,7 @@
  * @Autor: yongqing
  * @Date: 2020-01-15 14:53:49
  * @LastEditors: yongqing
- * @LastEditTime: 2020-03-20 14:55:27
+ * @LastEditTime: 2020-03-26 15:41:17
  -->
 <template>
     <view class="home-content-block">
@@ -20,7 +20,7 @@
                 <view class="home-content-block-item" @tap="goToAdminDetail({{item._id}})">
                     <image src="{{item.banner_img[0].url}}" mode="aspectFill" class="home-content-block-item__img" />
                     <view class="home-content-block-item__info">
-                        <view class="car-name">
+                        <view class="car-name van-multi-ellipsis--l2">
                             {{ item.car_name }}
                         </view>
                         <view class="car-mileage">
@@ -91,6 +91,7 @@ export default class carListItem extends wepy.component {
                         success: res => {
                             if (res.confirm) {
                                 this.$emit("onDel", id)
+                                instance.close()
                             } else if (res.cancel) {
                                 instance.close()
                             }
@@ -115,6 +116,7 @@ export default class carListItem extends wepy.component {
         }
         &__info {
             margin-left: 20rpx;
+            flex:1;
             .car-name {
                 font-size: 32rpx;
                 color: #222;

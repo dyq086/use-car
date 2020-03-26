@@ -68,14 +68,14 @@
 					"id": 2,
 					"name": "pages/home/detail",
 					"pathName": "pages/home/detail",
-					"query": "id=9a393e025e7481e9000ba4ca78dabfca",
+					"query": "id=ae7e55b35e785b5b002366fd145ccf57",
 					"scene": null
 				},
 				{
 					"id": 3,
 					"name": "pages/admin/detail",
 					"pathName": "pages/admin/detail",
-					"query": "id=9a393e025e7481e9000ba4ca78dabfca",
+					"query": "id=ae7e55b35e785b5b002366fd145ccf57",
 					"scene": null
 				}
 			]

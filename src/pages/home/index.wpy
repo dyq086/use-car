@@ -4,7 +4,7 @@
  * @Autor: yongqing
  * @Date: 2020-01-15 14:53:49
  * @LastEditors: yongqing
- * @LastEditTime: 2020-03-21 15:25:08
+ * @LastEditTime: 2020-03-23 18:03:52
  -->
 <template>
     <view class="home-container">
@@ -34,7 +34,8 @@ export default class Home extends wepy.page {
         navigationBarTitleText: "粤宝发",
         navigationBarTextStyle: "white",
         backgroundTextStyle: "light",
-        navigationBarBackgroundColor: "#ee0a24"
+        navigationBarBackgroundColor: "#ee0a24",
+        enablePullDownRefresh: true
     }
     components = {
         Loadmore,
@@ -46,6 +47,10 @@ export default class Home extends wepy.page {
         search_value: ""
     }
     onLoad() {
+        this.getCarList()
+    }
+    onPullDownRefresh() {
+        console.log("===下拉刷新===")
         this.getCarList()
     }
     methods = {
@@ -83,6 +88,8 @@ export default class Home extends wepy.page {
                 } else {
                     this.nodata = true
                 }
+                wx.stopPullDownRefresh()
+
                 this.$apply()
             })
     }
@@ -95,6 +102,5 @@ export default class Home extends wepy.page {
     .search-btn {
         color: #fff;
     }
-    
 }
 </style>

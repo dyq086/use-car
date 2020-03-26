@@ -4,7 +4,7 @@
  * @Autor: yongqing
  * @Date: 2020-01-15 14:53:49
  * @LastEditors: yongqing
- * @LastEditTime: 2020-03-21 15:21:21
+ * @LastEditTime: 2020-03-26 17:04:51
  -->
 <template>
     <view class="admin-container">
@@ -21,10 +21,17 @@
                 label="产品价格"
                 clearable
                 value="{{ form.price }}"
-                type="number"
                 data-prop="price"
                 @input="formInput"
-                placeholder="请输入产品价格"
+                placeholder="请输入产品价格(单位:万)"
+            />
+            <van-field
+                label="金融价格"
+                clearable
+                value="{{ form.vip_price }}"
+                data-prop="vip_price"
+                @input="formInput"
+                placeholder="请输入金融价格(单位:万)"
             />
             <van-field
                 label="时间/里程"
@@ -33,15 +40,6 @@
                 data-prop="mileage"
                 @input="formInput"
                 placeholder="如：2018年/3.3万公里"
-            />
-            <van-field
-                label="金融价格"
-                clearable
-                value="{{ form.vip_price }}"
-                type="number"
-                data-prop="vip_price"
-                @input="formInput"
-                placeholder="请输入金融价格"
             />
             <van-field
                 label="联系电话"
@@ -67,17 +65,22 @@
                 @input="formInput"
                 placeholder="请输入门店地址"
             />
+            <van-field
+                value="{{ form.latitude}},{{form.longitude}}"
+                center
+                disabled
+                clearable
+                label="经纬度"
+                placeholder="选择门店经纬度"
+                use-button-slot
+            >
+                <van-button slot="button" size="small" type="primary" @tap="chooseLocation">地理位置</van-button>
+            </van-field>
         </van-cell-group>
         <van-field label="标签" value="{{tagNames}}" icon="arrow" disabled @tap="onSelectTag" />
         <van-field label="车辆标签" value="{{carTagNames}}" icon="arrow" disabled @tap="onSelectCarTag" />
         <van-panel title="轮播图上传">
-            <van-uploader
-                file-list="{{ form.banner_img }}"
-                name="banner_img"
-                max-count="6"
-                bind:after-read="upLoadImage"
-                bind:delete="deleteImage"
-            />
+            <van-uploader file-list="{{ form.banner_img }}" name="banner_img" bind:after-read="upLoadImage" bind:delete="deleteImage" />
         </van-panel>
         <van-panel title="服务保障图">
             <van-uploader
@@ -118,16 +121,33 @@
         </van-panel>
         <van-panel title="车况检测">
             <view class="form-content-block">
-                <view class="form-item">
-                    <view class="form-item__title">事故排查</view>
+                <view class="form-item" wx:for="{{form.vehicle_info}}" wx:key="index">
+                    <view class="form-item__header">
+                        <van-field
+                            placeholder="请输入属性名称"
+                            size="small"
+                            data-prop="name"
+                            data-index="{{index}}"
+                            @input="vehicleInfoInput"
+                            value="{{item.name}}"
+                            right-icon="delete"
+                            bind:click-icon="onDeleteVehicle"
+                            clearable
+                        />
+                    </view>
+
                     <van-uploader
-                        file-list="{{ form.detail_accident }}"
-                        name="detail_accident"
+                        file-list="{{ item.img_urls }}"
+                        name="vehicle_info-img_urls-{{index}}"
+                        preview-size="{{60}}"
                         bind:after-read="upLoadImage"
                         bind:delete="deleteImage"
                     />
                 </view>
-                <view class="form-item">
+                <view class="add-base" @tap="onAddVehicleInfo">
+                    <van-icon name="add-o" color="#999" size="60rpx" />
+                </view>
+                <!-- <view class="form-item">
                     <view class="form-item__title">底盘检测</view>
                     <van-uploader
                         file-list="{{ form.detail_underpan }}"
@@ -180,7 +200,7 @@
                         bind:after-read="upLoadImage"
                         bind:delete="deleteImage"
                     />
-                </view>
+                </view> -->
             </view>
         </van-panel>
         <view class="btn-footer">
@@ -225,6 +245,12 @@ export default class Admin extends wepy.page {
                     value: ""
                 }
             ],
+            vehicle_info: [
+                {
+                    name: "",
+                    img_urls: []
+                }
+            ],
             detail_accident: [],
             detail_underpan: [],
             detail_slight: [],
@@ -236,7 +262,9 @@ export default class Admin extends wepy.page {
             create_time: moment().format("YYYY-MM-DD MM:DD:SS"),
             update_time: moment().format("YYYY-MM-DD MM:DD:SS"),
             shop_name: "",
-            shop_address: ""
+            shop_address: "",
+            latitude: "",
+            longitude: ""
         },
         rules: {
             car_name: [{ verify: "isNotEmpty", message: "请输入产品名称" }],
@@ -276,21 +304,49 @@ export default class Admin extends wepy.page {
         TagSelect: TagSelect,
         CarTagSelect: TagSelect
     }
-
     methods = {
+        onClickIcon(e) {
+            console.log(e)
+        },
+        chooseLocation() {
+            wx.chooseLocation({
+                success: res => {
+                    this.form.latitude = res.latitude
+                    this.form.longitude = res.longitude
+                    this.$apply()
+                }
+            })
+        },
         baseInput(e) {
             let { prop, index } = e.currentTarget.dataset
             this.form.base[index][prop] = e.detail
+            this.$apply()
+        },
+        vehicleInfoInput(e) {
+            let { prop, index } = e.currentTarget.dataset
+            this.form.vehicle_info[index][prop] = e.detail
             this.$apply()
         },
         onDeleteBase(index) {
             this.form.base.splice(index, 1)
             this.$apply()
         },
+        onDeleteVehicle(e) {
+            let { index } = e.currentTarget.dataset
+            this.form.vehicle_info.splice(index, 1)
+            this.$apply()
+        },
         onAddBase() {
             this.form.base.push({
                 name: "",
                 value: ""
+            })
+            this.$apply()
+        },
+        onAddVehicleInfo() {
+            this.form.vehicle_info.push({
+                name: "",
+                img_urls: []
             })
             this.$apply()
         },
@@ -319,11 +375,9 @@ export default class Admin extends wepy.page {
     }
     async onLoad(params) {
         let id = params.id || ""
+        this.car_id = id
         await this.getTagList()
         await this.getCarTagList()
-        if (id) {
-            this.car_id = id
-        }
     }
     getCarInfo() {
         this.$parent.db
@@ -347,7 +401,9 @@ export default class Admin extends wepy.page {
             .then(res => {
                 this.tagList = res.data
                 this.$apply()
-                this.getCarInfo()
+                if (this.car_id) {
+                    this.getCarInfo()
+                }
             })
     }
     getCarTagList() {
@@ -366,7 +422,16 @@ export default class Admin extends wepy.page {
     deleteImage(event) {
         console.log(event)
         let { index, name } = event.detail
-        this.form[name].splice(index, 1)
+        if (name.indexOf("-") > -1) {
+            let key = name.split("-")
+            let prop1 = key[0]
+            let prop2 = key[1]
+            let index = key[2]
+            this.form[prop1][index][prop2].splice(index, 1)
+        } else {
+            this.form[name].splice(index, 1)
+        }
+
         this.$apply()
     }
     upLoadImage(event) {
@@ -381,7 +446,15 @@ export default class Admin extends wepy.page {
                 filePath: file.path
             })
             .then(res => {
-                this.form[name].push({ url: res.fileID, name: filename, isImage: true })
+                if (name.indexOf("-") > -1) {
+                    let key = name.split("-")
+                    let prop1 = key[0]
+                    let prop2 = key[1]
+                    let index = key[2]
+                    this.form[prop1][index][prop2].push({ url: res.fileID, name: filename, isImage: true })
+                } else {
+                    this.form[name].push({ url: res.fileID, name: filename, isImage: true })
+                }
                 wx.hideLoading()
                 this.$apply()
             })
@@ -401,9 +474,28 @@ export default class Admin extends wepy.page {
         wx.showLoading({
             title: "提交中"
         })
+        // let params = Object.assign({ car_id: this.car_id }, this.form)
+        // wx.cloud.callFunction({
+        //     name: "saveCar",
+        //     data: params,
+        //     success: res => {
+        //         console.log(res)
+        //         wx.hideLoading()
+        //         wx.showToast({
+        //             title: "保存成功",
+        //             icon: "success",
+        //             duration: 2000
+        //         })
+        //         this.reset()
+        //     },
+        //     fail: error => {
+        //         console.log(JSON.stringify(error))
+        //         wx.hideLoading()
+        //     }
+        // })
         if (this.car_id) {
-            delete this.form["_openid"]
             delete this.form["_id"]
+            delete this.form["_openid"]
             this.$parent.db
                 .collection("cars")
                 .doc(this.car_id)
@@ -411,6 +503,7 @@ export default class Admin extends wepy.page {
                     data: this.form
                 })
                 .then(res => {
+                    console.log(res)
                     wx.showToast({
                         title: "更新成功",
                         icon: "success",
@@ -452,6 +545,12 @@ export default class Admin extends wepy.page {
                     value: ""
                 }
             ],
+            vehicle_info: [
+                {
+                    name: "",
+                    img_urls: []
+                }
+            ],
             detail_accident: [],
             detail_underpan: [],
             detail_slight: [],
@@ -461,7 +560,9 @@ export default class Admin extends wepy.page {
             detail_surface: [],
             is_deleted: false,
             shop_name: "",
-            shop_address: ""
+            shop_address: "",
+            latitude: "",
+            longitude: ""
         }
         this.$apply()
         wx.navigateBack({
@@ -482,6 +583,9 @@ export default class Admin extends wepy.page {
                 font-size: 14px;
                 line-height: 16px;
             }
+            &__header {
+                padding-bottom: 20rpx;
+            }
         }
     }
     .base-input-block {
@@ -489,10 +593,10 @@ export default class Admin extends wepy.page {
             display: flex;
             align-items: center;
         }
-        .add-base {
-            text-align: center;
-            margin-top: 20rpx;
-        }
+    }
+    .add-base {
+        text-align: center;
+        margin-top: 20rpx;
     }
     .van-panel__content {
         padding: 10rpx 20rpx;

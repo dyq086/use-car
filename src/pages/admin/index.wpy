@@ -4,7 +4,7 @@
  * @Autor: yongqing
  * @Date: 2020-01-15 14:53:49
  * @LastEditors: yongqing
- * @LastEditTime: 2020-03-19 17:17:46
+ * @LastEditTime: 2020-03-23 18:04:41
  -->
 <template>
     <view class="home-container">
@@ -24,7 +24,8 @@ import Loadmore from "@/components/loadmore"
 import CarListItem from "../home/components/CarListItem"
 export default class Home extends wepy.page {
     config = {
-        navigationBarTitleText: "粤宝发管理后台"
+        navigationBarTitleText: "粤宝发管理后台",
+        enablePullDownRefresh: true
     }
     components = {
         Loadmore,
@@ -36,6 +37,10 @@ export default class Home extends wepy.page {
         search_value: ""
     }
     onShow() {
+        this.getCarList()
+    }
+    onPullDownRefresh() {
+        console.log("===下拉刷新===")
         this.getCarList()
     }
     methods = {
@@ -91,6 +96,7 @@ export default class Home extends wepy.page {
                 } else {
                     this.nodata = true
                 }
+                wx.stopPullDownRefresh()
                 this.$apply()
             })
     }
