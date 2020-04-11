@@ -4,7 +4,7 @@
  * @Autor: yongqing
  * @Date: 2019-09-03 23:23:52
  * @LastEditors: yongqing
- * @LastEditTime: 2020-03-26 18:39:16
+ * @LastEditTime: 2020-04-08 13:25:01
  -->
 <template>
     <view class="home-detail-container">
@@ -38,7 +38,9 @@
                 </view>
             </view>
             <view class="base-car-tag-box">
-                <van-tag class="base-car-tag-item" wx:for="{{info.car_tags}}" color="#ee0a24" plain size="large" wx:key="index">{{ item.name }}</van-tag>
+                <van-tag class="base-car-tag-item" wx:for="{{info.car_tags}}" color="#f53e36" size="large" wx:key="index">{{
+                    item.name
+                }}</van-tag>
             </view>
         </van-panel>
 
@@ -94,7 +96,12 @@
             <van-goods-action-icon url="/pages/home/index" icon="home-o" text="首页" />
             <van-goods-action-icon @tap="createQr" icon="qr" text="二维码" />
             <van-goods-action-icon open-type="share" icon="share" text="分享" />
-            <van-goods-action-button text="立即预约" bind:getuserinfo="onClickButton" open-type="getUserInfo" />
+            <van-goods-action-button
+                disabled="{{info.is_deleted}}"
+                text="{{info.is_deleted?'已售':'立即预约'}}"
+                bind:getuserinfo="onClickButton"
+                open-type="getUserInfo"
+            />
         </van-goods-action>
         <van-popup show="{{ show }}" position="center" bind:close="onClose">
             <image src="{{qr_img}}" class="qr_img" />
@@ -185,6 +192,9 @@ export default class HomeDetail extends wepy.page {
             })
         },
         onClickButton(e) {
+            if (this.info.is_deleted) {
+                return
+            }
             if (!this.user_id) {
                 let user_info = e.detail.userInfo
                 this.$parent.db
