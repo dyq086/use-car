@@ -77,6 +77,12 @@
 					"pathName": "pages/admin/detail",
 					"query": "id=ae7e55b35e785b5b002366fd145ccf57",
 					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/sale_car/index",
+					"pathName": "pages/sale_car/index",
+					"scene": null
 				}
 			]
 		}

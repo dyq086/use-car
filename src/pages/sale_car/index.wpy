@@ -1,0 +1,106 @@
+<!--
+ * @Description: 
+ * @Version: 1.0
+ * @Autor: yongqing
+ * @Date: 2020-01-15 14:53:49
+ * @LastEditors: yongqing
+ * @LastEditTime: 2020-04-16 11:18:08
+ -->
+<template>
+    <view class="sale-car-container">
+        <image class="sale_image" src="../../assets/images/sale_image.jpg" mode="aspectFill" />
+        <van-cell-group>
+            <van-field value="{{form.model_cn}}" label="找什么车" data-prop="model_cn" @input="formInput" placeholder="例如:16年的卡罗拉" />
+            <van-field value="{{form.budget}}" label="预算" data-prop="budget" @input="formInput" placeholder="例如:8w" />
+            <van-field value="{{form.user_name}}" label="姓名" data-prop="user_name" @input="formInput" placeholder="请输入您的姓名" />
+            <van-field value="{{form.tel}}" label="电话" data-prop="tel" @input="formInput" placeholder="请输入您的联系方式" />
+        </van-cell-group>
+        <view class="btn-footer">
+            <van-button type="danger" block @tap="onSubmit">提交</van-button>
+        </view>
+    </view>
+</template>
+<script>
+import wepy from "wepy"
+import input from "@/mixins/input"
+import validator from "@/mixins/validator"
+import moment from "moment"
+export default class Index extends wepy.page {
+    config = {
+        navigationBarTitleText: "定金找车"
+    }
+    mixins = [input, validator]
+    data = {
+        form: {
+            model_cn: "",
+            budget: "",
+            tel: "",
+            user_name: "",
+            status: 0, // 0 待完成 1 已完成
+            is_deleted: false,
+            apply_time: moment().format("YYYY-MM-DD MM:DD:SS"),
+            update_time: moment().format("YYYY-MM-DD MM:DD:SS")
+        },
+        rules: {
+            model_cn: [{ verify: "isNotEmpty", message: "请输入您想找的车型" }],
+            budget: [{ verify: "isNotEmpty", message: "请输入预算" }],
+            user_name: [{ verify: "isNotEmpty", message: "请输入您的姓名" }],
+            tel: [{ verify: "isNotEmpty", message: "请输入您的联系方式" }]
+        }
+    }
+    methods = {
+        onSubmit() {
+            console.log("validator")
+            this.validate("form", valid => {
+                if (valid.length == 0) {
+                    this.save()
+                } else {
+                    wx.showToast({
+                        title: valid[0].errorMsg,
+                        icon: "none",
+                        duration: 2000
+                    })
+                }
+            })
+        }
+    }
+    save() {
+        this.$parent.db
+            .collection("sale_car")
+            .add({
+                data: this.form
+            })
+            .then(res => {
+                wx.showToast({
+                    title: "提交成功，我们会尽快联系您",
+                    icon: "none",
+                    duration: 2000
+                })
+                this.reset()
+            })
+    }
+    reset() {
+        this.form = {
+            model_cn: "",
+            budget: "",
+            tel: "",
+            user_name: "",
+            status: 0, // 0 待完成 1 已完成
+            is_deleted: false,
+            apply_time: moment().format("YYYY-MM-DD MM:DD:SS"),
+            update_time: moment().format("YYYY-MM-DD MM:DD:SS")
+        }
+        this.$apply()
+    }
+}
+</script>
+<style lang="less">
+@import "../../style/mixins";
+
+.sale-car-container {
+    .sale_image {
+        width: 750rpx;
+        height: 303rpx;
+    }
+}
+</style>

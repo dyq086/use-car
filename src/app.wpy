@@ -49,7 +49,7 @@ import interfaces from "./interfaces"
 import "wepy-async-function"
 export default class extends wepy.app {
     config = {
-        pages: ["pages/home/index", "pages/home/detail", "pages/admin/index", "pages/admin/detail"],
+        pages: ["pages/home/index", "pages/sale_car/index", "pages/home/detail", "pages/admin/index", "pages/admin/detail"],
         window: {
             navigationBarBackgroundColor: "#fff",
             navigationBarTitleText: "WeChat",
@@ -64,43 +64,26 @@ export default class extends wepy.app {
             },
             openapi: ["wxacode.getUnlimited"]
         },
-        // tabBar: {
-        //     color: '#8e8e8e',
-        //     selectedColor: '#000000',
-        //     backgroundColor: '#FFFFFF',
-        //     borderStyle: 'black',
-        //     list: [{
-        //             pagePath: 'pages/home/index',
-        //             text: 'HOME',
-        //             iconPath: 'icons/tabbar_icon/home.png',
-        //             selectedIconPath: 'icons/tabbar_icon_selected/home.png'
-        //         },
-        //         {
-        //             pagePath: 'pages/events/index',
-        //             text: 'EVENTS',
-        //             iconPath: 'icons/tabbar_icon/events.png',
-        //             selectedIconPath: 'icons/tabbar_icon_selected/events.png'
-        //         },
-        //         {
-        //             pagePath: 'pages/group/index',
-        //             text: 'CLASSES',
-        //             iconPath: 'icons/tabbar_icon/group.png',
-        //             selectedIconPath: 'icons/tabbar_icon_selected/group.png'
-        //         },
-        //         {
-        //             pagePath: 'pages/instructor/index',
-        //             text: 'APPTS',
-        //             iconPath: 'icons/tabbar_icon/instructor.png',
-        //             selectedIconPath: 'icons/tabbar_icon_selected/instructor.png'
-        //         },
-        //         {
-        //             pagePath: 'pages/my/index',
-        //             text: 'MY',
-        //             iconPath: 'icons/tabbar_icon/my.png',
-        //             selectedIconPath: 'icons/tabbar_icon_selected/my.png'
-        //         }
-        //     ]
-        // },
+        tabBar: {
+            color: "#8e8e8e",
+            selectedColor: "#ee0a24",
+            backgroundColor: "#FFFFFF",
+            borderStyle: "black",
+            list: [
+                {
+                    pagePath: "pages/home/index",
+                    text: "首页",
+                    iconPath: "icons/tabbar_icon/home.png",
+                    selectedIconPath: "icons/tabbar_icon_selected/home.png"
+                },
+                {
+                    pagePath: "pages/sale_car/index",
+                    text: "找车",
+                    iconPath: "icons/tabbar_icon/car.png",
+                    selectedIconPath: "icons/tabbar_icon_selected/car.png"
+                }
+            ]
+        },
         usingComponents: {
             "van-field": "./components/vant/field/index",
             "van-cell": "./components/vant/cell/index",
