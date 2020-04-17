@@ -1,0 +1,148 @@
+<!--
+ * @Description: 
+ * @Version: 1.0
+ * @Autor: yongqing
+ * @Date: 2020-04-17 09:45:25
+ * @LastEditors: yongqing
+ * @LastEditTime: 2020-04-17 10:46:32
+ -->
+<template>
+    <view class="app-container">
+        <van-tabs active="{{active}}" @change="onChange">
+            <van-tab title="待处理" name="{{0}}"></van-tab>
+            <van-tab title="已处理" name="{{1}}"></van-tab>
+        </van-tabs>
+        <view class="sale-car-list">
+            <block wx:for="{{dataList}}" wx:key="index">
+                <van-panel title="{{item.user_name}}" status="{{item.status==0?'待处理':'已处理'}}" use-footer-slot>
+                    <view class="detail-info">
+                        <van-cell-group>
+                            <van-cell title="购车需求" value="{{item.model_cn}}" />
+                            <van-cell title="预算" value="{{item.budget}}" />
+                            <van-cell
+                                title="联系电话"
+                                border="{{ false }}"
+                                is-link
+                                value="{{item.tel}}"
+                                data-tel="{{item.tel}}"
+                                @tap="makePhoneCall"
+                            />
+                        </van-cell-group>
+                    </view>
+                    <view slot="footer" wx:if="{{item.status==0}}">
+                        <van-button size="small" type="danger" @tap="onConfirm" data-id="{{item._id}}">确认处理</van-button>
+                    </view>
+                </van-panel>
+            </block>
+        </view>
+        <Loadmore :nodata.sync="nodata" />
+    </view>
+</template>
+<script>
+import wepy from "wepy"
+import Loadmore from "@/components/loadmore"
+
+export default class Index extends wepy.page {
+    config = {
+        navigationBarTitleText: "预约列表"
+    }
+    data = {
+        active: 0,
+        dataList: [],
+        nodata: false
+    }
+    components = {
+        Loadmore
+    }
+    onLoad() {
+        this.getSaleList()
+    }
+    methods = {
+        onChange(e) {
+            let status = e.detail.name
+            this.active = status
+            this.$apply()
+            wx.showLoading({
+                title: "加载中"
+            })
+
+            setTimeout(() => {
+                this.getSaleList()
+            }, 300)
+        },
+        onConfirm(e) {
+            let _id = e.currentTarget.dataset.id
+            wx.showModal({
+                title: "提示",
+                content: "确定标记为已处理状态?",
+                success: res => {
+                    if (res.confirm) {
+                        this.$parent.db
+                            .collection("sale_car")
+                            .doc(_id)
+                            .update({
+                                data: {
+                                    status: 1
+                                }
+                            })
+                            .then(res => {
+                                this.getSaleList()
+                            })
+                    }
+                }
+            })
+        },
+        makePhoneCall(e) {
+            let phone_num = e.currentTarget.dataset.tel
+            wx.makePhoneCall({
+                phoneNumber: phone_num
+            })
+        }
+    }
+
+    getSaleList() {
+        this.$parent.db
+            .collection("sale_car")
+            .where({
+                status: this.active,
+                is_deleted: false
+            })
+            .get()
+            .then(res => {
+                wx.hideLoading()
+                this.dataList = res.data
+                if (this.dataList.length > 0) {
+                    this.nodata = false
+                } else {
+                    this.nodata = true
+                }
+                this.$apply()
+            })
+    }
+}
+</script>
+<style lang="less">
+.sale-car-list {
+    .van-panel {
+        margin-top: 10px;
+    }
+    .van-cell__title {
+        font-size: 30rpx;
+        color: #222;
+    }
+    .panel-index--van-panel__header-value{
+        color: #f40;
+    }
+    .van-panel__footer {
+        text-align: right;
+    }
+    .detail-info {
+        .van-cell__title {
+            color: #999;
+        }
+        .van-cell__value {
+            color: #222;
+        }
+    }
+}
+</style>

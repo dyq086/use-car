@@ -49,7 +49,14 @@ import interfaces from "./interfaces"
 import "wepy-async-function"
 export default class extends wepy.app {
     config = {
-        pages: ["pages/home/index", "pages/sale_car/index", "pages/home/detail", "pages/admin/index", "pages/admin/detail"],
+        pages: [
+            "pages/home/index",
+            "pages/sale_car/index",
+            "pages/sale_car/list",
+            "pages/home/detail",
+            "pages/admin/index",
+            "pages/admin/detail"
+        ],
         window: {
             navigationBarBackgroundColor: "#fff",
             navigationBarTitleText: "WeChat",
@@ -107,9 +114,10 @@ export default class extends wepy.app {
             "van-row": "./components/vant/row/index",
             "van-col": "./components/vant/col/index",
             "van-uploader": "./components/vant/uploader/index",
-            "van-goods-action": "./components/vant//goods-action/index",
-            "van-goods-action-icon": "./components/vant//goods-action-icon/index",
-            "van-goods-action-button": "./components/vant//goods-action-button/index"
+            "van-goods-action": "./components/vant/goods-action/index",
+            "van-goods-action-icon": "./components/vant/goods-action-icon/index",
+            "van-goods-action-button": "./components/vant/goods-action-button/index",
+            "van-action-sheet": "./components/vant/action-sheet/index"
         }
     }
 

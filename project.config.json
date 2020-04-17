@@ -82,6 +82,13 @@
 					"id": -1,
 					"name": "pages/sale_car/index",
 					"pathName": "pages/sale_car/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/sale_car/list",
+					"pathName": "pages/sale_car/list",
 					"scene": null
 				}
 			]

@@ -4,7 +4,7 @@
  * @Autor: yongqing
  * @Date: 2020-01-15 14:53:49
  * @LastEditors: yongqing
- * @LastEditTime: 2020-03-23 18:04:41
+ * @LastEditTime: 2020-04-17 10:53:06
  -->
 <template>
     <view class="home-container">
@@ -13,9 +13,10 @@
         </van-search>
         <CarListItem :dataList.sync="carList" admin="true" @onDel.user="onDel" />
         <Loadmore :nodata.sync="nodata" />
-        <view class="admin-enter" @tap="onAdd">
-            <van-icon name="add-o" size="40rpx" color="#fff" />
+        <view class="admin-enter" @tap="onOpenActionSheet">
+            <van-icon name="apps-o" size="40rpx" color="#fff" />
         </view>
+        <van-action-sheet show="{{ show_action_sheet }}" actions="{{ actions }}" bind:close="onClose" bind:select="onSelect" />
     </view>
 </template>
 <script>
@@ -34,10 +35,31 @@ export default class Home extends wepy.page {
     data = {
         carList: [],
         nodata: false,
-        search_value: ""
+        search_value: "",
+        show_action_sheet: false,
+        actions: [
+            {
+                name: "添加车辆",
+                url: "/pages/admin/detail"
+            },
+            {
+                name: "定金找车",
+                url: "/pages/sale_car/list"
+            }
+        ]
     }
     onShow() {
         this.getCarList()
+    }
+
+    onClose() {
+        this.show_action_sheet = false
+        this.$apply()
+    }
+    onSelect(event) {
+        wx.navigateTo({
+            url: event.detail.url
+        })
     }
     onPullDownRefresh() {
         console.log("===下拉刷新===")
@@ -51,10 +73,13 @@ export default class Home extends wepy.page {
         onSearch() {
             this.getCarList()
         },
-        onAdd() {
-            wx.navigateTo({
-                url: `/pages/admin/detail`
-            })
+        onOpenActionSheet() {
+            // wx.navigateTo({
+            //     url: `/pages/admin/detail`
+            // })
+
+            this.show_action_sheet = true
+            this.$apply()
         },
         onDel(id) {
             this.$parent.db
