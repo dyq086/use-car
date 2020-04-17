@@ -4,7 +4,7 @@
  * @Autor: yongqing
  * @Date: 2020-04-17 09:45:25
  * @LastEditors: yongqing
- * @LastEditTime: 2020-04-17 10:46:32
+ * @LastEditTime: 2020-04-17 10:59:42
  -->
 <template>
     <view class="app-container">
@@ -19,14 +19,8 @@
                         <van-cell-group>
                             <van-cell title="购车需求" value="{{item.model_cn}}" />
                             <van-cell title="预算" value="{{item.budget}}" />
-                            <van-cell
-                                title="联系电话"
-                                border="{{ false }}"
-                                is-link
-                                value="{{item.tel}}"
-                                data-tel="{{item.tel}}"
-                                @tap="makePhoneCall"
-                            />
+                            <van-cell title="联系电话" is-link value="{{item.tel}}" data-tel="{{item.tel}}" @tap="makePhoneCall" />
+                            <van-cell title="申请日期" border="{{ false }}" value="{{item.apply_time}}" />
                         </van-cell-group>
                     </view>
                     <view slot="footer" wx:if="{{item.status==0}}">
@@ -130,7 +124,7 @@ export default class Index extends wepy.page {
         font-size: 30rpx;
         color: #222;
     }
-    .panel-index--van-panel__header-value{
+    .panel-index--van-panel__header-value {
         color: #f40;
     }
     .van-panel__footer {
