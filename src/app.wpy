@@ -79,13 +79,13 @@ export default class extends wepy.app {
             list: [
                 {
                     pagePath: "pages/home/index",
-                    text: "首页",
+                    text: "现车购买",
                     iconPath: "icons/tabbar_icon/home.png",
                     selectedIconPath: "icons/tabbar_icon_selected/home.png"
                 },
                 {
                     pagePath: "pages/sale_car/index",
-                    text: "找车",
+                    text: "高价卖车",
                     iconPath: "icons/tabbar_icon/car.png",
                     selectedIconPath: "icons/tabbar_icon_selected/car.png"
                 }

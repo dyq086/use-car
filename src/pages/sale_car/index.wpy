@@ -10,8 +10,8 @@
     <view class="sale-car-container">
         <image class="sale_image" src="../../assets/images/sale_image.jpg" mode="aspectFill" />
         <van-cell-group>
-            <van-field value="{{form.model_cn}}" label="找什么车" data-prop="model_cn" @input="formInput" placeholder="例如:16年的卡罗拉" />
-            <van-field value="{{form.budget}}" label="预算" data-prop="budget" @input="formInput" placeholder="例如:8w" />
+            <van-field value="{{form.model_cn}}" label="卖什么车" data-prop="model_cn" @input="formInput" placeholder="例如:16年的卡罗拉" />
+            <van-field value="{{form.budget}}" label="心理价位" data-prop="budget" @input="formInput" placeholder="例如:8w" />
             <van-field value="{{form.user_name}}" label="姓名" data-prop="user_name" @input="formInput" placeholder="请输入您的姓名" />
             <van-field value="{{form.tel}}" label="电话" data-prop="tel" @input="formInput" placeholder="请输入您的联系方式" />
         </van-cell-group>
@@ -27,7 +27,7 @@ import validator from "@/mixins/validator"
 import moment from "moment"
 export default class Index extends wepy.page {
     config = {
-        navigationBarTitleText: "定金找车"
+        navigationBarTitleText: "高价卖车"
     }
     mixins = [input, validator]
     data = {
@@ -42,8 +42,8 @@ export default class Index extends wepy.page {
             update_time: moment().format("YYYY-MM-DD MM:DD:SS")
         },
         rules: {
-            model_cn: [{ verify: "isNotEmpty", message: "请输入您想找的车型" }],
-            budget: [{ verify: "isNotEmpty", message: "请输入预算" }],
+            model_cn: [{ verify: "isNotEmpty", message: "请输入您想卖的车型" }],
+            budget: [{ verify: "isNotEmpty", message: "请输入心理价位" }],
             user_name: [{ verify: "isNotEmpty", message: "请输入您的姓名" }],
             tel: [{ verify: "isNotEmpty", message: "请输入您的联系方式" }]
         }

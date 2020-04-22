@@ -17,8 +17,8 @@
                 <van-panel title="{{item.user_name}}" status="{{item.status==0?'待处理':'已处理'}}" use-footer-slot>
                     <view class="detail-info">
                         <van-cell-group>
-                            <van-cell title="购车需求" value="{{item.model_cn}}" />
-                            <van-cell title="预算" value="{{item.budget}}" />
+                            <van-cell title="卖车需求" value="{{item.model_cn}}" />
+                            <van-cell title="心理价位" value="{{item.budget}}" />
                             <van-cell title="联系电话" is-link value="{{item.tel}}" data-tel="{{item.tel}}" @tap="makePhoneCall" />
                             <van-cell title="申请日期" border="{{ false }}" value="{{item.apply_time}}" />
                         </van-cell-group>
@@ -38,7 +38,7 @@ import Loadmore from "@/components/loadmore"
 
 export default class Index extends wepy.page {
     config = {
-        navigationBarTitleText: "预约列表"
+        navigationBarTitleText: "高价卖车"
     }
     data = {
         active: 0,

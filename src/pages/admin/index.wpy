@@ -43,7 +43,7 @@ export default class Home extends wepy.page {
                 url: "/pages/admin/detail"
             },
             {
-                name: "定金找车",
+                name: "高价卖车",
                 url: "/pages/sale_car/list"
             }
         ]
